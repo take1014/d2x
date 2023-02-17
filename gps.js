@@ -1,7 +1,4 @@
 // import modules
-const moment     = require('moment-timezone');
-const fs         = require('fs');
-const path       = require('path');
 const serialport = require('serialport');
 const nmea       = require('nmea-0183');
 const mqtt       = require('mqtt');
@@ -26,13 +23,13 @@ port.on('open', function(err){
 
 // mqtt modules
 const mqtthost = 'localhost'
-const mqttclient = mqtt.connect('mqtt://'+mqtthost);
+const pub = mqtt.connect('mqtt://'+mqtthost);
 
-mqttclient.on('connect', function(){
+pub.on('connect', function(){
     console.log('mqtt ' + mqtthost + ' connected.')
 });
 
-mqttclient.on('error', function(err){
+pub.on('error', function(err){
     console.log(err);
 });
 
