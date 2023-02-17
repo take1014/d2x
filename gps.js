@@ -1,64 +1,61 @@
-var serialport = require("serialport");
-var nmea = require('nmea-0183');
-var port = '/dev/ttyUSB0';
-var baudrate = 4800;
+// import modules
+const moment     = require('moment-timezone');
+const fs         = require('fs');
+const path       = require('path');
+const serialport = require('serialport');
+const nmea       = require('nmea-0183');
+const mqtt       = require('mqtt');
 
-var receiver = new serialport(port, {
-    baudRate: parseInt(baudrate),
+// define parameters
+var PORT = '/dev/ttyACM0';
+var BAUDRATE = 4800;
+
+
+// define serialport
+const port = new serialport(PORT, {
+    baudRate: parseInt(BAUDRATE),
     //parser: new serialport.parsers.Readline(readline)
     parser: new serialport.parsers.Readline("\r\n")
 });
 
-receiver.on('open', function(err){
-    console.log('serialPort:Port open');
+// open serial port
+port.on('open', function(err){
+    console.log('port open');
 });
 
-receiver.on('data', function(data){
-    try{
-        // for (key in data)
-        // {
-        //     console.log(key);
-        // }
-        // return 0;
-        console.log(data.toString());
+
+// mqtt modules
+const mqtthost = 'localhost'
+const mqttclient = mqtt.connect('mqtt://'+mqtthost);
+
+mqttclient.on('connect', function(){
+    console.log('mqtt ' + mqtthost + ' connected.')
+});
+
+mqttclient.on('error', function(err){
+    console.log(err);
+});
+
+port.on('data', readData);
+
+function readData(data)
+{
+    try
+    {
         var nmeaData = nmea.parse(data.toString());
-        var nmeaData = nmea.encode("GNRMC", data);
-        if(nmeaData['id'] == 'GNRMC'){
+        if(nmeaData['id'] == 'GPRMC')
+        {
             var gps = {};
-            var coords = {};
-            gps.coords = {};
-            gps.coords.latitude = Number(nmeaData.latitude);
-            gps.coords.longitude = Number(nmeaData.longiture);
-            console.log(gps);
-            console.log(nmeaData);
+            gps.latitude = Number(nmeaData.latitude);
+            gps.longitude = Number(nmeaData.longiture);
+            mqttclient.publish('gps', gps);
         }
         else
         {
-            console.log("do not exits GPRMC");
+            //console.log("do not exits GPRMC");
         }
     }catch(e)
     {
         // console.log(e);
     }
-});
-
-
-
-// const SerialPort = require('serialport');
-// const nmea       = require('nmea-0183')
-// const Readline = SerialPort.parsers.Readline;
-// const port       = new SerialPort('/dev/ttyUSB0');
-// const parser     = new Readline("\r\n");
-// port.pipe(parser);
-
-// port.on('data', function(data){
-//     try{
-//         var gps = nmea.parse(data);
-//         if (gps['id'] == 'GPRMC'){
-//         console.log('GPRMC');
-//             console.log(gps);
-//         }
-//     }catch(e){
-//         console.log(e);
-//     }
-// });
+}
