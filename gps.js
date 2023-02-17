@@ -23,13 +23,13 @@ port.on('open', function(err){
 
 // mqtt modules
 const mqtthost = 'localhost'
-const mqttclient = mqtt.connect('mqtt://'+mqtthost);
+const mqttPub = mqtt.connect('mqtt://'+mqtthost);
 
-mqttclient.on('connect', function(){
+mqttPub.on('connect', function(){
     console.log('mqtt ' + mqtthost + ' connected.')
 });
 
-mqttclient.on('error', function(err){
+mqttPub.on('error', function(err){
     console.log(err);
 });
 
@@ -47,14 +47,14 @@ function readData(data)
             gpsData.latitude  = Number(nmeaData.latitude);
             gpsData.longitude = Number(nmeaData.longitude);
             console.log(gpsData);
-            mqttclient.publish('gps', JSON.stringify(gpsData));
+            mqttPub.publish('gps', JSON.stringify(gpsData));
         }
         else
         {
-            mqttclient.publish('gps', null);
+            // mqttPub.publish('gps', null);
         }
     }catch(e)
     {
-        mqttclient.publish('gps', null);
+        // mqttPub.publish('gps', null);
     }
 }

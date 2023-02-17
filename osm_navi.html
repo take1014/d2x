@@ -26,21 +26,22 @@
 
     // var hash = L.hash(map)
 
-    let mqttclient = mqtt.connect('ws://pi-ucsk.local:15675');
-    //let mqttclient = mqtt.connect('mtqq://localhost:15675')
-    mqttclient.on('connect', function() {
+    let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
+    //let mqttSub = mqtt.connect('mtqq://localhost:15675')
+    mqttSub.on('connect', function() {
         console.log("mqtt connected.");
-        mqttclient.subscribe('gps');
+        mqttSub.subscribe('gps');
     });
 
 
-    mqttclient.on('message', function(topic, message) {
+    mqttSub.on('message', function(topic, message) {
         readGPSData(message.toString());
     });
     function readGPSData(data)
     {
         // console.log(data);
         if(data == null) return;
+        alert(data);
         jsonData = JSON.parse(data);
         let latitude  = jsonData.latitude;
         let longitude = jsonData.longitude;
