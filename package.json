@@ -1,0 +1,25 @@
+{
+  "name": "gps",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gps.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/take1014/gps.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/take1014/gps/issues"
+  },
+  "homepage": "https://github.com/take1014/gps#readme",
+  "dependencies": {
+    "leaflet": "^1.9.3",
+    "mqtt": "^4.3.7",
+    "nmea-0183": "0.0.7",
+    "serialport": "^9.0.3"
+  }
+}

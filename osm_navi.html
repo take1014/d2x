@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html style="height:100%;margin:0;padding:0;">
+<title>Leaflet page with tiles from localhost</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.3/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style type="text/css">
+.leaflet-tile-container { pointer-events: auto; }
+</style>
+</head>
+<body style="height:100%;margin:0;padding:0;">
+<div id="map" style="height:100%"></div>
+
+<script>
+    var map = L.map('map').setView({lon: 139.3578657, lat: 36.2737866}, 18);
+    L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 21,
+        maxNativeZoom: 20
+    }).addTo(map);
+
+    // show a marker on the map
+    // L.marker({lon: 139.3578657, lat: 36.2737866}).bindPopup('Initial poisition').addTo(map);
+
+    // var hash = L.hash(map)
+
+    let mqttclient = mqtt.connect('ws://pi-ucsk.local:15675');
+    //let mqttclient = mqtt.connect('mtqq://localhost:15675')
+    mqttclient.on('connect', function() {
+        console.log("mqtt connected.");
+        mqttclient.subscribe('gps');
+    });
+
+
+    mqttclient.on('message', function(topic, message) {
+        readGPSData(message.toString());
+    });
+    function readGPSData(data)
+    {
+        // console.log(data);
+        if(data == null) return;
+        jsonData = JSON.parse(data);
+        let latitude  = jsonData.latitude;
+        let longitude = jsonData.longitude;
+        // show a marker on the map
+        L.marker({lon: longitude, lat: latitude}).bindPopup('Current position').addTo(map);
+    }
+    //]]>
+</script>
+
+</body>
+</html>

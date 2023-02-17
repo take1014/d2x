@@ -23,13 +23,13 @@ port.on('open', function(err){
 
 // mqtt modules
 const mqtthost = 'localhost'
-const pub = mqtt.connect('mqtt://'+mqtthost);
+const mqttclient = mqtt.connect('mqtt://'+mqtthost);
 
-pub.on('connect', function(){
+mqttclient.on('connect', function(){
     console.log('mqtt ' + mqtthost + ' connected.')
 });
 
-pub.on('error', function(err){
+mqttclient.on('error', function(err){
     console.log(err);
 });
 
@@ -42,17 +42,19 @@ function readData(data)
         var nmeaData = nmea.parse(data.toString());
         if(nmeaData['id'] == 'GPRMC')
         {
-            var gps = {};
-            gps.latitude = Number(nmeaData.latitude);
-            gps.longitude = Number(nmeaData.longiture);
-            mqttclient.publish('gps', gps);
+            var gpsData = {};
+            gpsData.id        = nmeaData['id'];
+            gpsData.latitude  = Number(nmeaData.latitude);
+            gpsData.longitude = Number(nmeaData.longitude);
+            console.log(gpsData);
+            mqttclient.publish('gps', JSON.stringify(gpsData));
         }
         else
         {
-            //console.log("do not exits GPRMC");
+            mqttclient.publish('gps', null);
         }
     }catch(e)
     {
-        // console.log(e);
+        mqttclient.publish('gps', null);
     }
 }
