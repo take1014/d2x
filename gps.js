@@ -47,7 +47,10 @@ function readData(data)
             gpsData.latitude  = Number(nmeaData.latitude);
             gpsData.longitude = Number(nmeaData.longitude);
             console.log(gpsData);
-            mqttPub.publish('gps', JSON.stringify(gpsData));
+            if(gpsData.latitude != NaN && gpsData.longitude != NaN)
+            {
+                mqttPub.publish('gps', JSON.stringify(gpsData));
+            }
         }
         else
         {

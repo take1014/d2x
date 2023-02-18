@@ -14,17 +14,14 @@
 <div id="map" style="height:100%"></div>
 
 <script>
-    var map = L.map('map').setView({lon: 139.3578657, lat: 36.2737866}, 18);
+    var map = L.map('map');
     L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 21,
         maxNativeZoom: 20
     }).addTo(map);
 
-    // show a marker on the map
-    // L.marker({lon: 139.3578657, lat: 36.2737866}).bindPopup('Initial poisition').addTo(map);
-
-    // var hash = L.hash(map)
+    var hash = L.hash(map)
 
     let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
     //let mqttSub = mqtt.connect('mtqq://localhost:15675')
@@ -33,20 +30,32 @@
         mqttSub.subscribe('gps');
     });
 
-
+    var addMarker = null;
+    var oldData = {};
     mqttSub.on('message', function(topic, message) {
         readGPSData(message.toString());
     });
+
     function readGPSData(data)
     {
         // console.log(data);
         if(data == null) return;
-        alert(data);
         jsonData = JSON.parse(data);
-        let latitude  = jsonData.latitude;
-        let longitude = jsonData.longitude;
-        // show a marker on the map
-        L.marker({lon: longitude, lat: latitude}).bindPopup('Current position').addTo(map);
+
+        if(jsonData.longitude == NaN || jsonData.latitude == NaN) return;
+
+        if (map && addMarker){
+            map.removeLayer(addMarker);
+            // points list -> [latitude, longitude]
+            L.polyline([[jsonData.latitude, jsonData.longitude], [oldData.latitude, oldData.longitude]], {"color": "green", "weight": 5, "opacity": 0.3}).addTo(map);
+        }
+        // show a marker on the map marker points -> [longitude, latitude]
+        addMarker = L.marker({lon: jsonData.longitude, lat: jsonData.latitude}).bindPopup('Current position').addTo(map);
+
+        // map center -> marker position.
+        map.setView({lon: jsonData.longitude, lat: jsonData.latitude}, 18);
+
+        oldData = jsonData;
     }
     //]]>
 </script>
