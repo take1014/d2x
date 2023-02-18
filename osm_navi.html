@@ -53,7 +53,7 @@
         addMarker = L.marker({lon: jsonData.longitude, lat: jsonData.latitude}).bindPopup('Current position').addTo(map);
 
         // map center -> marker position.
-        map.setView({lon: jsonData.longitude, lat: jsonData.latitude}, 18);
+        map.setView({lon: jsonData.longitude, lat: jsonData.latitude}, map.getZoom());
 
         oldData = jsonData;
     }
