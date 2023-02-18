@@ -36,3 +36,9 @@ npm ci
 
 # OMS serverのセットアップ
 ### 参考URL：https://switch2osm.org/serving-tiles/manually-building-a-tile-server-ubuntu-22-04-lts/
+
+# シリアルの有効化(ttyACM0かttyUSB0のどちらか)
+```bash
+sudo chmod 666 /dev/ttyACM0
+sudo chmod 666 /dev/ttyUSB0
+```
