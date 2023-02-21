@@ -6,6 +6,16 @@
 #include <unistd.h>
 #include <termios.h>
 
+// Connect Serial
+// example:
+//     Serial serial("/dev/ttyACM0", eB9600);
+//     bool connected = serial.init();
+//     if (!connected) return false;
+//     std::istringstream ss(serial.receive('\n'));
+//     std::string buffer;
+//     while (std::getline(ss, buffer, '\n') ) {
+//     error = parser.parse(buffer);
+//    }
 class Serial
 {
     public:

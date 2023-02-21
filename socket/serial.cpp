@@ -1,15 +1,18 @@
 #include "serial.hpp"
 
+// Constructor
 Serial::Serial() : m_device("/dev/ttyACM0"),
                    m_baudrate(eB9600){}
 Serial::Serial(const std::string device, const BaudRate baudrate): m_device(device),
                                                                    m_baudrate(baudrate){}
-
+// Destructor
 Serial::~Serial()
 {
     kill();
 }
 
+// Kill serial connection.
+// return true or false.
 bool Serial::kill(void)
 {
    if (tcsetattr(m_port, TCSANOW, &m_oldtio) < 0)
@@ -21,6 +24,8 @@ bool Serial::kill(void)
     return true;
 }
 
+// Initialize serial connection.
+// return true or false.
 bool Serial::init(void)
 {
    /* Initalize */
@@ -64,9 +69,11 @@ bool Serial::init(void)
     return true;
 }
 
+// Receive message from serial.
+// return message from serial.
 std::string Serial::receive(const char terminate)
 {
-    std:: string out;
+    std::string received_msg;
     bool is_received = false;
     char received_char;
     while(true)
@@ -76,22 +83,25 @@ std::string Serial::receive(const char terminate)
         if(read_size <= 0 && is_received) break;
 
         is_received = true;
-        out.append(1, received_char);
+        received_msg.append(1, received_char);
 
         if(received_char == terminate) break;
     }
-    return out;
+    return received_msg;
 }
 
-bool Serial::send(const std::string &send_str)
+// Send message to Serial
+// return true or false.
+bool Serial::send(const std::string &send_msg)
 {
-    size_t send_sz = send_str.size() + 1;
+    size_t send_sz = send_msg.size() + 1;
     char *send_chars = new char[send_sz];
-    send_str.copy(send_chars, send_str.size());
-    send_chars[send_str.size()] = '\0';   /* terminating character */
+    send_msg.copy(send_chars, send_msg.size());
+    send_chars[send_msg.size()] = '\0';   /* terminating character */
 
     if(write(m_port, send_chars, send_sz) != send_sz)
     {
+        std::cout << "send message error." << std::endl;
         return false;
     }
     return true;
