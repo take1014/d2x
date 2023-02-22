@@ -102,10 +102,14 @@ struct GPGGA_t{
     std::string differential_station_ID;
 };
 
-static std::vector<std::string>
-split(const std::string &data)
+static bool
+split(const std::string &data, std::vector<std::string> &splitted_data)
 {
-    std::vector<std::string> splitted_data;
+    if (data.size() < 4 || data.front() != '$' || data.back() != 'r')
+    {
+        return false;
+    }
+
     std::stringstream ss(data);
     std::string buffer;
     while(std::getline(ss, buffer, ','))
@@ -123,7 +127,7 @@ split(const std::string &data)
     {
         splitted_data.push_back(buffer);
     }
-    return splitted_data;
+    return true;
 }
 
 static bool
@@ -155,7 +159,7 @@ parseGPGGA(const std::vector<std::string> &splitted_data, GPGGA_t &gpgga)
 
 GPS::GPS() : m_device(""),
              m_baudrate(Serial::eB9600),
-             m_gps_serial(nullptr),
+             // m_gps_serial(nullptr),
              m_gps_thread(nullptr){}
 
 GPS::~GPS()
@@ -168,9 +172,9 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
 {
     m_device     = device;
     m_baudrate   = baudrate;
-    m_gps_serial = new Serial(device, baudrate);
+    m_gps_serial = Serial(device, baudrate);
 
-    if (!m_gps_serial->init())
+    if (!m_gps_serial.init())
     {
         std::cout << "GPS serial error." << std::endl;
         return false;
@@ -185,13 +189,15 @@ GPS::event_loop(void)
     while(true)
     {
         // usleep(1000000.f);
-        std::istringstream iss(m_gps_serial->receive('\n'));
+        std::istringstream iss(m_gps_serial.receive('\n'));
         std::string line;
         while (std::getline(iss, line, '\n'))
         {
             /* TODO: parser */
             /* GPGGA GPGLL GPGSA GPGSV GPRMC GPVTG PGZDA */
-            std::vector<std::string> splitted_data = split(line.substr(1, line.size()-2));
+            std::vector<std::string> splitted_data;
+            if (!split(line.substr(1, line.size()-2), splitted_data)) continue;
+
             if (splitted_data.front() == "GPGGA")
             {
                 GPGGA_t gpgga_data(16, splitted_data.front());
@@ -211,15 +217,16 @@ GPS::start(void)
 {
     /* Start GPS thread */
     std::cout << "GPS thread start." << std::endl;
-    m_gps_thread = new std::thread(&GPS::event_loop, this);
+    event_loop();
+    // m_gps_thread = new std::thread(&GPS::event_loop, this);
 }
 
 void
 GPS::stop(void)
 {
-    m_gps_thread->join();
-    delete m_gps_serial;
+    // m_gps_thread->join();
+    // delete m_gps_serial;
     delete m_gps_thread;
-    m_gps_serial = nullptr;
+    // m_gps_serial = nullptr;
     m_gps_thread = nullptr;
 }
