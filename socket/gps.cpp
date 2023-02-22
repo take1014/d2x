@@ -197,7 +197,9 @@ GPS::event_loop(void)
                 GPGGA_t gpgga_data(16, splitted_data.front());
                 if (parseGPGGA(splitted_data, gpgga_data))
                 {
-
+                    std::cout << gpgga_data.latitude.degrees << std::endl;
+                    std::cout << gpgga_data.latitude.minutes << std::endl;
+                    std::cout << gpgga_data.latitude.decimal_degrees << std::endl;
                 }
             }
         }
