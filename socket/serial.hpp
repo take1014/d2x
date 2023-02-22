@@ -35,10 +35,6 @@ class Serial
         std::string receive(const char terminate='\n');
 
     private:
-        typedef struct {
-            
-
-        }GNSS_t;
         int m_port;
         std::string m_device;
         BaudRate m_baudrate;
