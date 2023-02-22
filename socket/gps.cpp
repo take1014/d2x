@@ -102,14 +102,10 @@ struct GPGGA_t{
     std::string differential_station_ID;
 };
 
-static bool
-split(const std::string &data, std::vector<std::string> &splitted_data)
+static std::vector<std::string>
+split(const std::string &data)
 {
-    if (data.size() < 4 || data.front() != '$' || data.back() != 'r')
-    {
-        return false;
-    }
-
+    std::vector<std::string> splitted_data;
     std::stringstream ss(data);
     std::string buffer;
     while(std::getline(ss, buffer, ','))
@@ -127,7 +123,7 @@ split(const std::string &data, std::vector<std::string> &splitted_data)
     {
         splitted_data.push_back(buffer);
     }
-    return true;
+    return splitted_data;
 }
 
 static bool
@@ -188,15 +184,19 @@ GPS::event_loop(void)
 {
     while(true)
     {
-        // usleep(1000000.f);
+        usleep(1000000.f);
         std::istringstream iss(m_gps_serial.receive('\n'));
         std::string line;
         while (std::getline(iss, line, '\n'))
         {
+            if (line.size() < 4 || line.front() != '$' || line.back() != 'r')
+            {
+                std::cout << "Invalid format" << std::endl;
+                continue;
+            }
             /* TODO: parser */
             /* GPGGA GPGLL GPGSA GPGSV GPRMC GPVTG PGZDA */
-            std::vector<std::string> splitted_data;
-            if (!split(line.substr(1, line.size()-2), splitted_data)) continue;
+            std::vector<std::string> splitted_data = split(line.substr(1, line.size()-2));
 
             if (splitted_data.front() == "GPGGA")
             {

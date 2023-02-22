@@ -32,12 +32,13 @@ class Serial
         bool init(void);
         bool kill(void);
         bool send(const std::string &str);
-        std::string receive(const char terminate='\n');
+        std::string receive(const bool wait=true, const char terminate='\0');
 
     private:
         int m_port;
         std::string m_device;
         BaudRate m_baudrate;
-        termios m_oldtio, m_newtio;
+        termios m_oldtio;
+        termios m_newtio;
 };
 #endif  /* SERIAL_HPP */
