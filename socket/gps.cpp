@@ -175,8 +175,8 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
         std::cout << "GPS serial error." << std::endl;
         return false;
     }
-    return true;
     sleep(1);
+    return true;
 }
 
 void
@@ -189,7 +189,7 @@ GPS::event_loop(void)
         std::string line;
         while (std::getline(iss, line, '\n'))
         {
-            if (line.size() < 4 || line.front() != '$' || line.back() != 'r')
+            if (line.size() < 4 || line.front() != '$' || line.back() != '\r')
             {
                 std::cout << "Invalid format" << std::endl;
                 continue;

@@ -89,11 +89,13 @@ Serial::receive(const bool wait, const char terminate)
         {
             is_received = true;
             received_msg.append(1, received_char);
-            if(received_char == terminate){
+            if(received_char == terminate)
+            {
                 break;
             };
         }
-        else{
+        else
+        {
             if(!wait || is_received)
             {
                 break;
