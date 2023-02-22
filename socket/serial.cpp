@@ -13,7 +13,8 @@ Serial::~Serial()
 
 // Kill serial connection.
 // return true or false.
-bool Serial::kill(void)
+bool
+Serial::kill(void)
 {
    if (tcsetattr(m_port, TCSANOW, &m_oldtio) < 0)
     {
@@ -26,7 +27,8 @@ bool Serial::kill(void)
 
 // Initialize serial connection.
 // return true or false.
-bool Serial::init(void)
+bool
+Serial::init(void)
 {
    /* Initalize */
     m_port = open(m_device.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
@@ -70,7 +72,8 @@ bool Serial::init(void)
 
 // Receive message from serial.
 // return message from serial.
-std::string Serial::receive(const char terminate)
+std::string
+Serial::receive(const char terminate)
 {
     std::string received_msg;
     bool is_received = false;
@@ -91,7 +94,8 @@ std::string Serial::receive(const char terminate)
 
 // Send message to Serial
 // return true or false.
-bool Serial::send(const std::string &send_msg)
+bool
+Serial::send(const std::string &send_msg)
 {
     std::size_t send_sz = send_msg.size() + 1;
     char *send_chars = new char[send_sz];

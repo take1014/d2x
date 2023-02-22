@@ -15,9 +15,9 @@ class GPS{
     private:
         void event_loop(void);
 
-        Serial m_gps_serial;
-        Serial::BaudRate m_baudrate;
         std::string m_device;
+        Serial::BaudRate m_baudrate;
+        Serial *m_gps_serial;
         std::thread *m_gps_thread;
 };
 

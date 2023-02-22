@@ -5,6 +5,7 @@
 
 GPS::GPS() : m_device(""),
              m_baudrate(Serial::eB9600),
+             m_gps_serial(nullptr),
              m_gps_thread(nullptr){}
 GPS::~GPS()
 {
@@ -16,9 +17,9 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
 {
     m_device = device;
     m_baudrate = baudrate;
-    m_gps_serial = Serial(device, baudrate);
+    m_gps_serial = new Serial(device, baudrate);
 
-    if (!m_gps_serial.init())
+    if (!m_gps_serial->init())
     {
         std::cout << "GPS serial error." << std::endl;
         return false;
@@ -33,7 +34,7 @@ GPS::event_loop(void)
     while(true)
     {
         usleep(1000000.f);
-        std::istringstream iss(m_gps_serial.receive('\n'));
+        std::istringstream iss(m_gps_serial->receive('\n'));
         std::string line;
         while (std::getline(iss, line, '\n'))
         {
@@ -53,6 +54,8 @@ void
 GPS::stop(void)
 {
     m_gps_thread->join();
+    delete m_gps_serial;
     delete m_gps_thread;
+    m_gps_serial = nullptr;
     m_gps_thread = nullptr;
 }
