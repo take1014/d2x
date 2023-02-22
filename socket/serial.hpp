@@ -26,13 +26,19 @@ class Serial
             eB38400 = B38400
         };
         Serial();
+        //explicit Serial(const std::string device, const BaudRate baudrate);
         Serial(const std::string device, const BaudRate baudrate);
         virtual ~Serial();
         bool init(void);
         bool kill(void);
         bool send(const std::string &str);
         std::string receive(const char terminate='\n');
+
     private:
+        typedef struct {
+            
+
+        }GNSS_t;
         int m_port;
         std::string m_device;
         BaudRate m_baudrate;

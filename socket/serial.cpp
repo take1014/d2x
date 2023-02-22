@@ -65,7 +65,6 @@ bool Serial::init(void)
         std::cout << "tcsetattr error." << std::endl;
         return false;
     }
-
     return true;
 }
 
@@ -94,7 +93,7 @@ std::string Serial::receive(const char terminate)
 // return true or false.
 bool Serial::send(const std::string &send_msg)
 {
-    size_t send_sz = send_msg.size() + 1;
+    std::size_t send_sz = send_msg.size() + 1;
     char *send_chars = new char[send_sz];
     send_msg.copy(send_chars, send_msg.size());
     send_chars[send_msg.size()] = '\0';   /* terminating character */
