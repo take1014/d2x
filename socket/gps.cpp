@@ -231,53 +231,43 @@ GPS::event_loop(void)
 
             if (splitted_data.front() == "GPGGA")
             {
-                if (parseGPGGA(splitted_data, gnss_data["GPGGA"]))
-                {
-                    std::string gpgga_json =  "\"GPGGA\":{\"latitude\":" + gnss_data["GPGGA"]["latitude"].asString() + "," + "\"longitude\":" + gnss_data["GPGGA"]["longitude"].asString() + "}";
-                    std::cout << gpgga_json << std::endl;
-                }
+                parseGPGGA(splitted_data, gnss_data["GPGGA"]);
             }
-
-            if (splitted_data.front() == "GPRMC")
+            else if (splitted_data.front() == "GPRMC")
             {
-                if (parseGPRMC(splitted_data, gnss_data["GPRMC"]))
-                {
-                    std::string gprmc_json =  "\"GPRMC\":{\"latitude\":" + gnss_data["GPRMC"]["latitude"].asString() + "," + "\"longitude\":" + gnss_data["GPRMC"]["longitude"].asString() + "}";
-                    std::cout << gprmc_json << std::endl;
-                }
+                parseGPRMC(splitted_data, gnss_data["GPRMC"]);
             }
-
-            if (splitted_data.front() == "GPGLL")
+            else if (splitted_data.front() == "GPGLL")
             {
-                if (parseGPGLL(splitted_data, gnss_data["GPGLL"]))
-                {
-                    std::string gpgll_json =  "\"GPGLL\":{\"latitude\":" + gnss_data["GPGLL"]["latitude"].asString() + "," + "\"longitude\":" + gnss_data["GPGLL"]["longitude"].asString() + "}";
-                    std::cout << gpgll_json << std::endl;
-                }
+                parseGPGLL(splitted_data, gnss_data["GPGLL"]);
             }
-
-            if (splitted_data.front() == "GPGSA")
+            else if (splitted_data.front() == "GPGSA")
             {
                 parseGPGSA(splitted_data, gnss_data["GPGSA"]);
             }
-
-            if (splitted_data.front() == "GPGSV")
+            else if (splitted_data.front() == "GPGSV")
             {
                 parseGPGSV(splitted_data, gnss_data["GPGSV"]);
             }
-
-            if (splitted_data.front() == "GPVTG")
+            else if (splitted_data.front() == "GPVTG")
             {
                 parseGPVTG(splitted_data, gnss_data["GPVTG"]);
             }
-
-            if (splitted_data.front() == "GPZDA")
+            else if(splitted_data.front() == "GPZDA")
             {
                 parseGPZDA(splitted_data, gnss_data["GPZDA"]);
+            }
+            else
+            {
+                continue;
             }
         }
 
         /* websocket */
+        Json::FastWriter fastWriter;
+        /* create send message*/
+        std::string send_msg = fastWriter.write(gnss_data);
+        std::cout << send_msg << std::endl;
     }
 }
 
