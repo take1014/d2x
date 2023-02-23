@@ -155,7 +155,7 @@ parseGPGGA(const std::vector<std::string> &splitted_data, GPGGA_t &gpgga)
 
 GPS::GPS() : m_device(""),
              m_baudrate(Serial::eB9600),
-             // m_gps_serial(nullptr),
+             m_gps_serial(nullptr),
              m_gps_thread(nullptr){}
 
 GPS::~GPS()
@@ -168,9 +168,9 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
 {
     m_device     = device;
     m_baudrate   = baudrate;
-    m_gps_serial = Serial(device, baudrate);
+    m_gps_serial = new Serial(device, baudrate);
 
-    if (!m_gps_serial.init())
+    if (!m_gps_serial->init())
     {
         std::cout << "GPS serial error." << std::endl;
         return false;
@@ -185,7 +185,7 @@ GPS::event_loop(void)
     while(true)
     {
         usleep(1000000.f);
-        std::istringstream iss(m_gps_serial.receive('\n'));
+        std::istringstream iss(m_gps_serial->receive('\n'));
         std::string line;
         while (std::getline(iss, line, '\n'))
         {
@@ -203,8 +203,8 @@ GPS::event_loop(void)
                 GPGGA_t gpgga_data(16, splitted_data.front());
                 if (parseGPGGA(splitted_data, gpgga_data))
                 {
-                    std::cout << gpgga_data.latitude.decimal_degrees  << std::endl;
-                    std::cout << gpgga_data.longitude.decimal_degrees << std::endl;
+                    std::string gpgga_json =  "{\"latitude\":" + std::to_string(gpgga_data.latitude.decimal_degrees) + "," + "\"longitude\":" + std::to_string(gpgga_data.longitude.decimal_degrees) + "}";
+                    std::cout << gpgga_json << std::endl;
                 }
             }
         }
@@ -216,16 +216,15 @@ GPS::start(void)
 {
     /* Start GPS thread */
     std::cout << "GPS thread start." << std::endl;
-    event_loop();
-    // m_gps_thread = new std::thread(&GPS::event_loop, this);
+    m_gps_thread = new std::thread(&GPS::event_loop, this);
 }
 
 void
 GPS::stop(void)
 {
-    // m_gps_thread->join();
-    // delete m_gps_serial;
+    m_gps_thread->join();
+    delete m_gps_serial;
     delete m_gps_thread;
-    // m_gps_serial = nullptr;
+    m_gps_serial = nullptr;
     m_gps_thread = nullptr;
 }
