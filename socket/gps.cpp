@@ -1,11 +1,12 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-//#include "json/json.h"
 #include <json/json.h>
 
 #include "gps.hpp"
-#include "nmea_struct.hpp"
+
+constexpr int DATA_SZ_GPGGA = 16;
+constexpr int DATA_SZ_GPRMC = 14;
 
 static std::vector<std::string>
 split(const std::string &data)
@@ -34,10 +35,7 @@ split(const std::string &data)
 static bool
 parseGPGGA(const std::vector<std::string> &splitted_data, Json::Value &gpgga)
 {
-    if (splitted_data.size() != gpgga["data_num"].asInt())
-    {
-        return false;
-    }
+    if (splitted_data.size() != DATA_SZ_GPGGA) { return false; }
     gpgga["time_utc"]                         = calcUTC(splitted_data.at(1));
     gpgga["latitude"]                         = calcDecimalDegrees(splitted_data.at(2));
     gpgga["lat_direction"]                    = splitted_data.at(3);
@@ -59,10 +57,8 @@ parseGPGGA(const std::vector<std::string> &splitted_data, Json::Value &gpgga)
 static bool
 parseGPRMC(const std::vector<std::string> &splitted_data, Json::Value &gprmc)
 {
-    if(splitted_data.size() != gprmc["data_num"].asInt())
-    {
-        return false;
-    }
+    if(splitted_data.size() != DATA_SZ_GPRMC){ return false; }
+
     gprmc["time_utc"]                     = calcUTC(splitted_data.at(1));
     gprmc["status"]                       = splitted_data.at(2);
     gprmc["latitude"]                     = calcDecimalDegrees(splitted_data.at(3));
@@ -76,6 +72,7 @@ parseGPRMC(const std::vector<std::string> &splitted_data, Json::Value &gprmc)
     gprmc["magnetic_variation_direction"] = splitted_data.at(11);
     gprmc["mode"]                         = splitted_data.at(12);
     gprmc["checksum"]                     = convToIntFromHex(splitted_data.at(13));
+    return true;
 }
 
 GPS::GPS() : m_device(""),

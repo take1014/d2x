@@ -14,8 +14,7 @@
         "undulation_units":"",
         "age":0.0,
         "differential_station_ID":"",
-        "checksum":0,
-        "data_num":16
+        "checksum":0
     },
     "GPRMC":{
         "time_utc":"",
@@ -30,7 +29,6 @@
         "magnetic_variation":0.0,
         "magnetic_variation_direction":"",
         "mode":"",
-        "checksum":0,
-        "data_num":14
+        "checksum":0
     }
 }
