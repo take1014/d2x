@@ -1,106 +1,12 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+//#include "json/json.h"
+#include <json/json.h>
 
 #include "gps.hpp"
+#include "nmea_struct.hpp"
 
-struct Time {
-    Time() : hours(0.f), minutes(0.f), seconds(0.f), utc(""){}
-    void init()
-    {
-        hours   = 0.f;
-        minutes = 0.f;
-        seconds = 0.f;
-        utc     = "";
-    }
-
-    void set(const std::string &value)
-    {
-        const std::string str_hour = value.substr(0, 2);
-        const std::string str_min  = value.substr(2, 2);
-        const std::string str_sec  = value.substr(4);
-        hours   = (str_hour.empty()) ? 0.f : std::stof(str_hour);
-        minutes = (str_min.empty())  ? 0.f : std::stof(str_min);
-        seconds = (str_sec.empty())  ? 0.f : std::stof(str_sec);
-        utc = str_hour + ":" + str_min + ":" + str_sec;
-    }
-
-    float hours;
-    float minutes;
-    float seconds;
-    std::string utc;
-};
-struct LatLong_t{
-    LatLong_t() : degrees(0.f), minutes(0.f), decimal_degrees(0.f){}
-
-    void init()
-    {
-        degrees = 0.f;
-        minutes = 0.f;
-        decimal_degrees = 0.f;
-    }
-
-    void set(const std::string &value)
-    {
-        /* set degrees */
-        std::string str_deg = value.substr(0, value.find(".")-2);
-        degrees = (str_deg.empty()) ? 0.f : std::stof(str_deg);
-        /* set minuntes */
-        std::string str_min = value.substr(value.find(".")-2);
-        minutes = (str_min.empty()) ? 0.f : std::stof(str_min);
-        /* set decimal_degrees */
-        decimal_degrees = (degrees >= 0.f) ? degrees + minutes / 60.f:
-                                             degrees - minutes / 60.f;
-    }
-
-    float degrees;
-    float minutes;
-    float decimal_degrees;
-};
-
-struct GPGGA_t{
-
-    GPGGA_t() : data_num(16), type("GPGGA") { init(); }
-    GPGGA_t(int data_num, std::string type) : data_num(data_num), type(type){init();}
-
-    void init()
-    {
-        time.init();
-        latitude.init();
-        longitude.init();
-        lat_direction  = "";
-        long_direction = "";
-        quality = 0;
-        satellites = 0;
-        horizontal_dilution_of_precision = 0.f;
-        altitude = 0.f;
-        undulation = 0.f;
-        altitude_units = "";
-        undulation_units = "";
-        age = 0.f;
-        differential_station_ID = "";
-        checksum = 0;
-    }
-
-    const int data_num;
-    const std::string type;
-
-    int quality;
-    int satellites;
-    int checksum;
-    float horizontal_dilution_of_precision;
-    float altitude;
-    float undulation;
-    float age;
-    Time time;
-    LatLong_t latitude;
-    LatLong_t longitude;
-    std::string lat_direction;
-    std::string long_direction;
-    std::string altitude_units;
-    std::string undulation_units;
-    std::string differential_station_ID;
-};
 
 static std::vector<std::string>
 split(const std::string &data)
@@ -137,19 +43,43 @@ parseGPGGA(const std::vector<std::string> &splitted_data, GPGGA_t &gpgga)
 
     gpgga.time.set(splitted_data.at(1));
     gpgga.latitude.set(splitted_data.at(2));
-    gpgga.lat_direction = splitted_data.at(3);
+    gpgga.lat_direction                    = splitted_data.at(3);
     gpgga.longitude.set(splitted_data.at(4));
-    gpgga.long_direction = splitted_data.at(5);
-    gpgga.quality    = (splitted_data.at(6).empty()) ? 0.f : std::stoi(splitted_data.at(6), nullptr, 10);
-    gpgga.satellites = (splitted_data.at(7).empty()) ? 0.f : std::stoi(splitted_data.at(7), nullptr, 10);
-    gpgga.horizontal_dilution_of_precision = (splitted_data.at(8).empty()) ? 0.f : std::stof(splitted_data.at(8));
-    gpgga.altitude = (splitted_data.at(9).empty()) ? 0.f : std::stof(splitted_data.at(9));
-    gpgga.altitude_units = splitted_data.at(10);
-    gpgga.undulation = (splitted_data.at(11).empty()) ? 0.f : std::stof(splitted_data.at(11));
-    gpgga.undulation_units = splitted_data.at(12);
-    gpgga.age = (splitted_data.at(13).empty()) ? 0.f : std::stof(splitted_data.at(13));
-    gpgga.differential_station_ID = splitted_data.at(14);
-    gpgga.checksum = (splitted_data.at(15).empty()) ? 0.f : std::stoi(splitted_data.at(15), nullptr, 16);
+    gpgga.long_direction                   = splitted_data.at(5);
+    gpgga.quality                          = convToIntFromDecimal(splitted_data.at(6));
+    gpgga.satellites                       = convToIntFromDecimal(splitted_data.at(7));
+    gpgga.horizontal_dilution_of_precision = convToFloat(splitted_data.at(8));
+    gpgga.altitude                         = convToFloat(splitted_data.at(9));
+    gpgga.altitude_units                   = splitted_data.at(10);
+    gpgga.undulation                       = convToFloat(splitted_data.at(11));
+    gpgga.undulation_units                 = splitted_data.at(12);
+    gpgga.age                              = convToFloat(splitted_data.at(13));
+    gpgga.differential_station_ID          = splitted_data.at(14);
+    gpgga.checksum                         = convToIntFromHex(splitted_data.at(15));
+    return true;
+}
+
+static bool
+parseGPRMC(const std::vector<std::string> &splitted_data, GPRMC_t &gprmc)
+{
+    if(splitted_data.size() != gprmc.data_num)
+    {
+        gprmc.init();
+        return false;
+    }
+    gprmc.time.set(splitted_data.at(1));
+    gprmc.status                       = splitted_data.at(2);
+    gprmc.latitude.set(splitted_data.at(3));
+    gprmc.lat_direction                = splitted_data.at(4);
+    gprmc.longitude.set(splitted_data.at(5));
+    gprmc.long_direction               = splitted_data.at(6);
+    gprmc.knots                        = convToFloat(splitted_data.at(7));
+    gprmc.degrees                      = convToFloat(splitted_data.at(8));
+    gprmc.date                         = splitted_data.at(9);
+    gprmc.magnetic_variation           = convToFloat(splitted_data.at(10));
+    gprmc.magnetic_variation_direction = splitted_data.at(11);
+    gprmc.mode                         = splitted_data.at(12);
+    gprmc.checksum                     = convToIntFromHex(splitted_data.at(13));
     return true;
 }
 
@@ -187,6 +117,12 @@ GPS::event_loop(void)
         usleep(1000000.f);
         std::istringstream iss(m_gps_serial->receive('\n'));
         std::string line;
+
+        std::ifstream json_fmt("./nmea_format.json", std::ifstream::binary);
+        Json::Value gnss_data;
+        Json::Reader reader;
+        reader.parse(json_fmt, gnss_data);
+
         while (std::getline(iss, line, '\n'))
         {
             if (line.size() < 4 || line.front() != '$' || line.back() != '\r')
@@ -203,11 +139,52 @@ GPS::event_loop(void)
                 GPGGA_t gpgga_data(16, splitted_data.front());
                 if (parseGPGGA(splitted_data, gpgga_data))
                 {
-                    std::string gpgga_json =  "{\"latitude\":" + std::to_string(gpgga_data.latitude.decimal_degrees) + "," + "\"longitude\":" + std::to_string(gpgga_data.longitude.decimal_degrees) + "}";
+                    gnss_data["GPGGA"]["time_utc"]                         = gpgga_data.time.utc;
+                    gnss_data["GPGGA"]["latitude"]                         = gpgga_data.latitude.decimal_degrees;
+                    gnss_data["GPGGA"]["lat_direction"]                    = gpgga_data.lat_direction;
+                    gnss_data["GPGGA"]["longitude"]                        = gpgga_data.longitude.decimal_degrees;
+                    gnss_data["GPGGA"]["long_direction"]                   = gpgga_data.long_direction;
+                    gnss_data["GPGGA"]["quality"]                          = gpgga_data.quality;
+                    gnss_data["GPGGA"]["number_of_satellites"]             = gpgga_data.satellites;
+                    gnss_data["GPGGA"]["horizontal_dilution_of_precision"] = gpgga_data.horizontal_dilution_of_precision;
+                    gnss_data["GPGGA"]["altitude"]                         = gpgga_data.altitude;
+                    gnss_data["GPGGA"]["altitude_units"]                   = gpgga_data.altitude_units;
+                    gnss_data["GPGGA"]["undulation"]                       = gpgga_data.undulation;
+                    gnss_data["GPGGA"]["undulation_units"]                 = gpgga_data.undulation_units;
+                    gnss_data["GPGGA"]["age"]                              = gpgga_data.age;
+                    gnss_data["GPGGA"]["differential_station_ID"]          = gpgga_data.differential_station_ID;
+                    gnss_data["GPGGA"]["checksum"]                         = gpgga_data.checksum;
+                    std::string gpgga_json =  "\"GPGGA\":{\"latitude\":" + gnss_data["GPGGA"]["latitude"].asString() + "," + "\"longitude\":" + gnss_data["GPGGA"]["longitude"].asString() + "}";
                     std::cout << gpgga_json << std::endl;
                 }
             }
+
+            if (splitted_data.front() == "GPRMC")
+            {
+                GPRMC_t gprmc_data(14, splitted_data.front());
+                if (parseGPRMC(splitted_data, gprmc_data))
+                {
+                    gnss_data["GPRMC"]["time_utc"]                     = gprmc_data.time.utc;
+                    gnss_data["GPRMC"]["status"]                       = gprmc_data.status;
+                    gnss_data["GPRMC"]["latitude"]                     = gprmc_data.latitude.decimal_degrees;
+                    gnss_data["GPRMC"]["lat_direction"]                = gprmc_data.lat_direction;
+                    gnss_data["GPRMC"]["longitude"]                    = gprmc_data.longitude.decimal_degrees;
+                    gnss_data["GPRMC"]["long_direction"]               = gprmc_data.long_direction;
+                    gnss_data["GPRMC"]["knots"]                        = gprmc_data.knots;
+                    gnss_data["GPRMC"]["degrees"]                      = gprmc_data.degrees;
+                    gnss_data["GPRMC"]["date"]                         = gprmc_data.date;
+                    gnss_data["GPRMC"]["magnetic_variation"]           = gprmc_data.magnetic_variation;
+                    gnss_data["GPRMC"]["magnetic_variation_direction"] = gprmc_data.magnetic_variation_direction;
+                    gnss_data["GPRMC"]["mode"]                         = gprmc_data.mode;
+                    gnss_data["GPRMC"]["checksum"]                     = gprmc_data.checksum;
+                    std::string gprmc_json =  "\"GPRMC\":{\"latitude\":" + gnss_data["GPRMC"]["latitude"].asString() + "," + "\"longitude\":" + gnss_data["GPRMC"]["longitude"].asString() + "}";
+                    std::cout << gprmc_json << std::endl;
+                }
+            }
         }
+
+        /* websocket */
+
     }
 }
 

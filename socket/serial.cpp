@@ -92,7 +92,7 @@ Serial::receive(const bool wait, const char terminate)
             if(received_char == terminate)
             {
                 break;
-            };
+            }
         }
         else
         {
