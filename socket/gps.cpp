@@ -155,7 +155,7 @@ parseGPVTG(const std::vector<std::string> &splitted_data, Json::Value &gpvtg)
     gpvtg["magnetic_track"]      = convToFloat(splitted_data.at(3));
     gpvtg["magnetic_track_mode"] = splitted_data.at(4);
     gpvtg["ground_speed_knots"]  = convToFloat(splitted_data.at(5));
-    gpvtg["khots"]               = splitted_data.at(6);
+    gpvtg["knots"]               = splitted_data.at(6);
     gpvtg["ground_speed_kmh"]    = convToFloat(splitted_data.at(7));
     gpvtg["kmh"]                 = splitted_data.at(8);
     gpvtg["mode"]                = splitted_data.at(9);
