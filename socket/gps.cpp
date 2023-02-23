@@ -214,6 +214,8 @@ GPS::event_loop(void)
         std::string line;
 
         std::ifstream json_fmt("./nmea_format.json", std::ifstream::binary);
+
+        /* Create Json object from json file */
         Json::Value gnss_data;
         Json::Reader reader;
         reader.parse(json_fmt, gnss_data);
@@ -225,37 +227,39 @@ GPS::event_loop(void)
                 std::cout << "Invalid format" << std::endl;
                 continue;
             }
-            /* TODO: parser */
-            /* GPZDA */
+
             std::vector<std::string> splitted_data = split(line.substr(1, line.size()-2));
 
-            if (splitted_data.front() == "GPGGA")
+            /* Get NMEA type */
+            std::string nmea_type = splitted_data.front();
+            /* Parse */
+            if (nmea_type == "GPGGA")
             {
-                parseGPGGA(splitted_data, gnss_data["GPGGA"]);
+                parseGPGGA(splitted_data, gnss_data[nmea_type]);
             }
-            else if (splitted_data.front() == "GPRMC")
+            else if (nmea_type == "GPRMC")
             {
-                parseGPRMC(splitted_data, gnss_data["GPRMC"]);
+                parseGPRMC(splitted_data, gnss_data[nmea_type]);
             }
-            else if (splitted_data.front() == "GPGLL")
+            else if (nmea_type == "GPGLL")
             {
-                parseGPGLL(splitted_data, gnss_data["GPGLL"]);
+                parseGPGLL(splitted_data, gnss_data[nmea_type]);
             }
-            else if (splitted_data.front() == "GPGSA")
+            else if (nmea_type == "GPGSA")
             {
-                parseGPGSA(splitted_data, gnss_data["GPGSA"]);
+                parseGPGSA(splitted_data, gnss_data[nmea_type]);
             }
-            else if (splitted_data.front() == "GPGSV")
+            else if (nmea_type == "GPGSV")
             {
-                parseGPGSV(splitted_data, gnss_data["GPGSV"]);
+                parseGPGSV(splitted_data, gnss_data[nmea_type]);
             }
-            else if (splitted_data.front() == "GPVTG")
+            else if (nmea_type == "GPVTG")
             {
-                parseGPVTG(splitted_data, gnss_data["GPVTG"]);
+                parseGPVTG(splitted_data, gnss_data[nmea_type]);
             }
-            else if(splitted_data.front() == "GPZDA")
+            else if(nmea_type== "GPZDA")
             {
-                parseGPZDA(splitted_data, gnss_data["GPZDA"]);
+                parseGPZDA(splitted_data, gnss_data[nmea_type]);
             }
             else
             {
