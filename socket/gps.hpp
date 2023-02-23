@@ -14,12 +14,36 @@ class GPS{
         void stop(void);
     private:
         void event_loop(void);
+        inline float convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }
+        inline int   convToIntFromDecimal(const std::string &data){ return (data.empty()) ? 0   : std::stoi(data, nullptr, 10); }
+        inline int   convToIntFromHex(const std::string &data){ return (data.empty()) ? 0   : std::stoi(data, nullptr, 16); }
+        inline std::string calcUTC(const std::string &value)
+        {
+            const std::string str_hour = value.substr(0, 2);
+            const std::string str_min  = value.substr(2, 2);
+            const std::string str_sec  = value.substr(4);
+            return str_hour + ":" + str_min + ":" + str_sec;
+        }
+
+        inline float calcDecimalDegrees(const std::string &value)
+        {
+            /* set degrees */
+            std::string str_deg = value.substr(0, value.find(".")-2);
+            float degrees = convToFloat(str_deg);
+            /* set minuntes */
+            std::string str_min = value.substr(value.find(".")-2);
+            float minutes = convToFloat(str_min);
+            /* set decimal_degrees */
+            return (degrees >= 0.f) ? degrees + minutes / 60.f : degrees - minutes / 60.f;
+        }
 
         std::string m_device;
         Serial::BaudRate m_baudrate;
         Serial *m_gps_serial;
         std::thread *m_gps_thread;
 };
+
+
 
 #define GPS_HPP
 #endif /* GPS_HPP */
