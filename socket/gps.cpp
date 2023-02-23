@@ -43,10 +43,10 @@ struct LatLong_t{
     void set(const std::string &value)
     {
         /* set degrees */
-        std::string str_deg = value.substr(0, value.find("."-2));
+        std::string str_deg = value.substr(0, value.find(".")-2);
         degrees = (str_deg.empty()) ? 0.f : std::stof(str_deg);
         /* set minuntes */
-        std::string str_min = value.substr(value.find("."-2));
+        std::string str_min = value.substr(value.find(".")-2);
         minutes = (str_min.empty()) ? 0.f : std::stof(str_min);
         /* set decimal_degrees */
         decimal_degrees = (degrees >= 0.f) ? degrees + minutes / 60.f:
@@ -203,9 +203,8 @@ GPS::event_loop(void)
                 GPGGA_t gpgga_data(16, splitted_data.front());
                 if (parseGPGGA(splitted_data, gpgga_data))
                 {
-                    std::cout << gpgga_data.latitude.degrees << std::endl;
-                    std::cout << gpgga_data.latitude.minutes << std::endl;
-                    std::cout << gpgga_data.latitude.decimal_degrees << std::endl;
+                    std::cout << gpgga_data.latitude.decimal_degrees  << std::endl;
+                    std::cout << gpgga_data.longitude.decimal_degrees << std::endl;
                 }
             }
         }
