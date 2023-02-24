@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <thread>
+#include <mqtt/client.h>
 
 #include "serial.hpp"
 
@@ -21,6 +22,9 @@ class GPS{
         Serial::BaudRate m_baudrate;
         Serial *m_gps_serial;
         std::thread *m_gps_thread;
+        std::string ip;
+        std::string id;
+        mqtt::client *mqtt_client;
 };
 
 /* inline function */

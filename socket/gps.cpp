@@ -194,19 +194,26 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
     m_device     = device;
     m_baudrate   = baudrate;
     m_gps_serial = new Serial(device, baudrate);
-
     if (!m_gps_serial->init())
     {
         std::cout << "GPS serial error." << std::endl;
         return false;
     }
     sleep(1);
+
+    /* mqtt */
+    ip = "localhost:1883";
+    id = "publisher";
+    mqtt_client = new mqtt::client(ip, id, mqtt::create_options(MQTTVERSION_5));
+    mqtt_client->connect();
+
     return true;
 }
 
 void
 GPS::event_loop(void)
 {
+    mqtt::message_ptr timeLeftMessagePointer = mqtt::make_message("gps/in", "");
     while(true)
     {
         usleep(1000000.f);
@@ -267,11 +274,15 @@ GPS::event_loop(void)
             }
         }
 
-        /* websocket */
+        /* mqtt websocket */
         Json::FastWriter fastWriter;
         /* create send message*/
         std::string send_msg = fastWriter.write(gnss_data);
         std::cout << send_msg << std::endl;
+        // After counting down, configure Mqtt message for sending the quit signal.
+        timeLeftMessagePointer->set_payload(send_msg);
+        // Send quit signal to listeners.
+        mqtt_client->publish(timeLeftMessagePointer);
     }
 }
 
