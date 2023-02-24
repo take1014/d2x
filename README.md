@@ -46,6 +46,7 @@ sudo chmod 666 /dev/ttyUSB0
 ```bash
 # installjsoncpp
 sudo apt-get install libjsoncpp-dev
+sudo ln -s /usr/include/jsoncpp/json/ /usr/include/json
 # install paho.mqtt.c
 cd ~
 sudo apt-get install fakeroot devscripts dh-make lsb-release
