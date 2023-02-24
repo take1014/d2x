@@ -42,3 +42,30 @@ npm ci
 sudo chmod 666 /dev/ttyACM0
 sudo chmod 666 /dev/ttyUSB0
 ```
+### socket 環境構築
+```bash
+# installjsoncpp
+sudo apt-get install libjsoncpp-dev
+# install paho.mqtt.c
+cd ~
+sudo apt-get install fakeroot devscripts dh-make lsb-release
+sudo apt-get install libssl-dev
+sudo apt-get install doxygen graphviz
+git clone https://github.com/eclipse/paho.mqtt.c.git
+cd paho.mqtt.c
+git checkout v1.3.12
+mkdir build && cd build
+cmake ..
+make -j4
+sudo make install
+sudo ldconfig
+# install paho.mqtt.cpp
+cd ~
+git clone https://github.com/eclipse/paho.mqtt.cpp.git
+cd paho.mqtt.cpp
+mkdir build && cd build
+cmake ..
+make -j4
+sudo make install
+sudo ldconfig
+```
