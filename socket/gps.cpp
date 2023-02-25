@@ -212,7 +212,7 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate,
     m_mqtt_client->connect();
     if (!m_mqtt_client->is_connected())
     {
-        std::cout << "mqtt connetct error." << std::endl;
+        std::cout << "mqtt connect error." << std::endl;
         return false;
     }
 

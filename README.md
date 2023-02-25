@@ -42,31 +42,30 @@ npm ci
 sudo chmod 666 /dev/ttyACM0
 sudo chmod 666 /dev/ttyUSB0
 ```
+
 ### socket 環境構築
 ```bash
 # installjsoncpp
 sudo apt-get install libjsoncpp-dev
 sudo ln -s /usr/include/jsoncpp/json/ /usr/include/json
+# install mqtt
+# install libraries
+sudo apt-get install -y fakeroot devscripts dh-make lsb-release
+sudo apt-get install -y libssl-dev
+sudo apt-get install -y doxygen graphviz
 # install paho.mqtt.c
 cd ~
-sudo apt-get install fakeroot devscripts dh-make lsb-release
-sudo apt-get install libssl-dev
-sudo apt-get install doxygen graphviz
 git clone https://github.com/eclipse/paho.mqtt.c.git
 cd paho.mqtt.c
-git checkout v1.3.12
-mkdir build && cd build
-cmake ..
-make -j4
-sudo make install
+git checkout v1.3.8
+cmake -Bbuild -H. -DPAHO_ENABLE_TESTING=OFF -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON -DPAHO_HIGH_PERFORMANCE=ON
+sudo cmake --build build/ --target install
 sudo ldconfig
 # install paho.mqtt.cpp
 cd ~
-git clone https://github.com/eclipse/paho.mqtt.cpp.git
+git clone https://github.com/eclipse/paho.mqtt.cpp
 cd paho.mqtt.cpp
-mkdir build && cd build
-cmake ..
-make -j4
-sudo make install
+cmake -Bbuild -H. -DPAHO_BUILD_STATIC=ON -DPAHO_BUILD_DOCUMENTATION=TRUE -DPAHO_BUILD_SAMPLES=TRUE
+sudo cmake --build build/ --target install
 sudo ldconfig
 ```
