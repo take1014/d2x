@@ -24,9 +24,7 @@
     var hash = L.hash(map)
 
     let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
-    //let mqttSub = mqtt.connect('mtqq://localhost:15675')
     mqttSub.on('connect', function() {
-        console.log("mqtt connected.");
         mqttSub.subscribe('gps');
     });
 
@@ -42,18 +40,18 @@
         if(data == null) return;
         jsonData = JSON.parse(data);
 
-        if(jsonData.longitude == NaN || jsonData.latitude == NaN) return;
+        if(jsonData.GPRMC.longitude == NaN || jsonData.GPRMC.latitude == NaN) return;
 
         if (map && addMarker){
             map.removeLayer(addMarker);
             // points list -> [latitude, longitude]
-            L.polyline([[jsonData.latitude, jsonData.longitude], [oldData.latitude, oldData.longitude]], {"color": "green", "weight": 5, "opacity": 0.3}).addTo(map);
+            L.polyline([[jsonData.GPRMC.latitude, jsonData.GPRMC.longitude], [oldData.GPRMC.latitude, oldData.GPRMC.longitude]], {"color": "green", "weight": 5, "opacity": 0.3}).addTo(map);
         }
         // show a marker on the map marker points -> [longitude, latitude]
-        addMarker = L.marker({lon: jsonData.longitude, lat: jsonData.latitude}).bindPopup('Current position').addTo(map);
+        addMarker = L.marker({lon: jsonData.GPRMC.longitude, lat: jsonData.GPRMC.latitude}).bindPopup('Current position').addTo(map);
 
         // map center -> marker position.
-        map.setView({lon: jsonData.longitude, lat: jsonData.latitude}, map.getZoom());
+        map.setView({lon: jsonData.GPRMC.longitude, lat: jsonData.GPRMC.latitude}, map.getZoom());
 
         oldData = jsonData;
     }

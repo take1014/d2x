@@ -12,19 +12,20 @@ class GPS{
     public:
         GPS();
         ~GPS();
-        bool init(const std::string device, const Serial::BaudRate baudrate);
+        bool init(const std::string device, const Serial::BaudRate baudrate,
+                  const std::string mqtt_ip="mqtt://localhost:1883", const std::string mqtt_id="publisher");
         void start(void);
         void stop(void);
     private:
         void event_loop(void);
 
         std::string m_device;
+        std::string m_mqtt_ip;
+        std::string m_mqtt_id;
         Serial::BaudRate m_baudrate;
         Serial *m_gps_serial;
         std::thread *m_gps_thread;
-        std::string ip;
-        std::string id;
-        mqtt::client *mqtt_client;
+        mqtt::client *m_mqtt_client;
 };
 
 /* inline function */

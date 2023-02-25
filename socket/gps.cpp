@@ -180,8 +180,11 @@ parseGPZDA(const std::vector<std::string> &splitted_data, Json::Value &gpzda)
 
 GPS::GPS() : m_device(""),
              m_baudrate(Serial::eB9600),
+             m_mqtt_ip("mqtt://localhost:1883"),
+             m_mqtt_id("publisher"),
              m_gps_serial(nullptr),
-             m_gps_thread(nullptr){}
+             m_gps_thread(nullptr),
+             m_mqtt_client(nullptr){}
 
 GPS::~GPS()
 {
@@ -189,7 +192,8 @@ GPS::~GPS()
 }
 
 bool
-GPS::init(const std::string device, const Serial::BaudRate baudrate)
+GPS::init(const std::string device, const Serial::BaudRate baudrate,
+          const std::string mqtt_ip, const std::string mqtt_id)
 {
     m_device     = device;
     m_baudrate   = baudrate;
@@ -202,10 +206,15 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
     sleep(1);
 
     /* mqtt */
-    ip = "localhost:1883";
-    id = "publisher";
-    mqtt_client = new mqtt::client(ip, id, mqtt::create_options(MQTTVERSION_5));
-    mqtt_client->connect();
+    m_mqtt_ip = mqtt_ip;
+    m_mqtt_id = mqtt_id;
+    m_mqtt_client = new mqtt::client(mqtt_ip, mqtt_id, mqtt::create_options(MQTTVERSION_3_1));
+    m_mqtt_client->connect();
+    if (!m_mqtt_client->is_connected())
+    {
+        std::cout << "mqtt connetct error." << std::endl;
+        return false;
+    }
 
     return true;
 }
@@ -213,7 +222,7 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate)
 void
 GPS::event_loop(void)
 {
-    mqtt::message_ptr timeLeftMessagePointer = mqtt::make_message("gps/in", "");
+    Json::FastWriter fastWriter;
     while(true)
     {
         usleep(1000000.f);
@@ -275,14 +284,13 @@ GPS::event_loop(void)
         }
 
         /* mqtt websocket */
-        Json::FastWriter fastWriter;
         /* create send message*/
         std::string send_msg = fastWriter.write(gnss_data);
         std::cout << send_msg << std::endl;
-        // After counting down, configure Mqtt message for sending the quit signal.
-        timeLeftMessagePointer->set_payload(send_msg);
-        // Send quit signal to listeners.
-        mqtt_client->publish(timeLeftMessagePointer);
+        /* Send message to listeners */
+        mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps", "");
+        mqtt_msgptr->set_payload(send_msg);
+        m_mqtt_client->publish(mqtt_msgptr);
     }
 }
 
@@ -300,6 +308,8 @@ GPS::stop(void)
     m_gps_thread->join();
     delete m_gps_serial;
     delete m_gps_thread;
-    m_gps_serial = nullptr;
-    m_gps_thread = nullptr;
+    delete m_mqtt_client;
+    m_gps_serial  = nullptr;
+    m_gps_thread  = nullptr;
+    m_mqtt_client = nullptr;
 }
