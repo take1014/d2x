@@ -24,9 +24,10 @@ class GPS{
         std::string m_mqtt_id;
         Serial::BaudRate m_baudrate;
         Serial *m_gps_serial;
-        std::thread *m_gps_thread;
+        std::thread  *m_gps_thread;
         mqtt::client *m_mqtt_client;
 };
+
 
 /* inline function */
 inline float convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }
@@ -35,6 +36,7 @@ inline int   convToIntFromHex(const std::string &data){ return (data.empty()) ? 
 
 inline std::string calcUTC(const std::string &value)
 {
+    if (value.empty()) return "xx:xx:xx";
     const std::string str_hour = value.substr(0, 2);
     const std::string str_min  = value.substr(2, 2);
     const std::string str_sec  = value.substr(4);
@@ -43,6 +45,9 @@ inline std::string calcUTC(const std::string &value)
 
 inline float calcDecimalDegrees(const std::string &value)
 {
+    constexpr float DISABLE_DECIMAL_DEGREES = 999;
+
+    if (value.empty()) return DISABLE_DECIMAL_DEGREES;
     /* set degrees */
     std::string str_deg = value.substr(0, value.find(".")-2);
     float degrees = convToFloat(str_deg);

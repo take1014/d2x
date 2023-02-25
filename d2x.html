@@ -40,7 +40,11 @@
         if(data == null) return;
         jsonData = JSON.parse(data);
 
+        // Latitude  lines run east-west and are parallel to each other. If you go north, latitude values increase. Finally, latitude values (Y-values) range between -90 and +90 degrees.
+        // Longitude lines run north-south. They converge at the poles. And its X-coordinates are between -180 and +180 degrees.
         if(jsonData.GPRMC.longitude == NaN || jsonData.GPRMC.latitude == NaN) return;
+        if(jsonData.GPRMC.longitude < -180 || jsonData.GPRMC.longitude > 180) return;
+        if(jsonData.GPRMC.latitude  < -90  || jsonData.GPRMC.latitude  > 90)  return;
 
         if (map && addMarker){
             map.removeLayer(addMarker);
