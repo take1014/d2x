@@ -1,7 +1,7 @@
 {
   "name": "gps",
   "version": "1.0.0",
-  "description": "",
+  "description": "```bash sudo apt-get update sudo apt-get -y install mosquitto mosquitto-clients ```",
   "main": "gps.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/take1014/gps#readme",
   "dependencies": {
+    "install": "^0.13.0",
     "leaflet": "^1.9.3",
     "mqtt": "^4.3.7",
     "nmea-0183": "0.0.7",

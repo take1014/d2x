@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html style="height:100%;margin:0;padding:0;">
-<title>D2X</title>
-<meta charset="utf-8">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.3/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-<style type="text/css">
-.leaflet-tile-container { pointer-events: auto; }
-</style>
+<html style="height: 100%; margin: 0;">
+<head>
+    <title>D2X</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./node_modules/leaflet/dist/leaflet.css" />
+    <script src="./node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
-<body style="height:100%;margin:0;padding:0;">
-<div id="map" style="height:100%"></div>
+
+<body style="height: 100%; margin: 0; overflow: hidden;">
+    <div id="map" style="height: 100%; width: 100%;"></div>
+</body>
 
 <script>
     var map = L.map('map').setZoom(18);
@@ -20,8 +18,6 @@
         maxZoom: 21,
         maxNativeZoom: 20
     }).addTo(map);
-
-    var hash = L.hash(map)
 
     let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
     mqttSub.on('connect', function() {
@@ -59,8 +55,5 @@
 
         oldData = jsonData;
     }
-    //]]>
 </script>
-
-</body>
 </html>
