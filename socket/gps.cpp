@@ -225,7 +225,8 @@ GPS::event_loop(void)
     Json::Value gnss_data;
     Json::FastWriter fastWriter;
     Json::Reader reader;
-    std::ifstream json_fmt("./nmea_format.json");
+    std::ifstream json_fmt("../nmea_format.json");
+    mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps", "");
 
     while(true)
     {
@@ -289,7 +290,6 @@ GPS::event_loop(void)
         std::string send_msg = fastWriter.write(gnss_data);
         std::cout << send_msg << std::endl;
         /* Send message to listeners */
-        mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps", "");
         mqtt_msgptr->set_payload(send_msg);
         m_mqtt_client->publish(mqtt_msgptr);
     }
