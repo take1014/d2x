@@ -222,18 +222,19 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate,
 void
 GPS::event_loop(void)
 {
+    Json::Value gnss_data;
     Json::FastWriter fastWriter;
+    Json::Reader reader;
+    std::ifstream json_fmt("./nmea_format.json");
+
     while(true)
     {
+        /* 100m sec/f */
         usleep(1000000.f);
         std::istringstream iss(m_gps_serial->receive('\n'));
         std::string line;
 
-        std::ifstream json_fmt("./nmea_format.json", std::ifstream::binary);
-
         /* Create Json object from json file */
-        Json::Value gnss_data;
-        Json::Reader reader;
         reader.parse(json_fmt, gnss_data);
 
         while (std::getline(iss, line, '\n'))
