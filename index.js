@@ -6,6 +6,7 @@ L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
+//let mqttSub = mqtt.connect('ws://ucsk.local:15675');
 mqttSub.on('connect', function() {
     mqttSub.subscribe('gps');
 });

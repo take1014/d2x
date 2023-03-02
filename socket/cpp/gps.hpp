@@ -13,7 +13,7 @@ class GPS{
         GPS();
         ~GPS();
         bool init(const std::string device, const Serial::BaudRate baudrate,
-                  const std::string mqtt_ip="mqtt://localhost:1883", const std::string mqtt_id="publisher");
+                  const std::string mqtt_ip="localhost:1883", const std::string mqtt_id="publisher");
         void start(void);
         void stop(void);
     private:
