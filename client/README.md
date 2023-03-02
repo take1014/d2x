@@ -1,12 +1,12 @@
-# SETUP
-### mosquittoのインストール
-### 参考URL：https://mosquitto.org/
+# client SETUP
+## 1. mosquittoのインストール
+### 1-1. Install mosquitto, mosquitto-clients  参考URL：https://mosquitto.org/
 ```bash
 sudo apt-get update
 sudo apt-get -y install mosquitto mosquitto-clients apache2
 ```
 
-### mosquitto.confファイルの先頭に，以下の3行を追加
+### 1-2. mosquitto.confファイルの先頭に，以下の3行を追加
 ```bash
 sudo -e /etc/mosquitto/mosquitto.conf
 ```
@@ -18,35 +18,37 @@ protocol websockets
 allow_anonymous true    # ubuntuでやるときはこれが必要。raspberry piでは不要だった。
 ```
 
-### 自動起動の設定とサービスの再起動
+### 1-3. 自動起動の設定とサービスの再起動
 ```bash
 sudo systemctl enable mosquitto.service
 sudo systemctl restart mosquitto
 ```
 
-### node.jsとnpmのインストール
+## 2. node.jsの設定
+### 2-1. Install nodejs, npm nvm
 ```bash
-sudo apt-get install nodejs
-sudo apt-get install npm
+sudo apt-get install -y nodejs
+sudo apt-get install -y npm
+sudo apt-get install -y curl
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 ```
 
-### node modulesの設定
+### 2-2. client起動に必要なnode_modulesのDL
 ```bash
+cd d2x
 npm ci
 ```
 
-# OMS serverのセットアップ
-### 参考URL：https://switch2osm.org/serving-tiles/manually-building-a-tile-server-ubuntu-22-04-lts/
-
-# シリアルの有効化(ttyACM0かttyUSB0のどちらか)
+## 3. シリアルの有効化(ttyACM0かttyUSB0のどちらか)
 ```bash
 sudo chmod 666 /dev/ttyACM0
 sudo chmod 666 /dev/ttyUSB0
 ```
 
-### socket 環境構築
+## 4. socket 環境構築
+### 4-1. C++ でmqttを使用するために必要なライブラリインストール
 ```bash
-# installjsoncpp
+# install jsoncpp
 sudo apt-get install libjsoncpp-dev
 sudo ln -s /usr/include/jsoncpp/json/ /usr/include/json
 # install mqtt
@@ -69,4 +71,21 @@ cd paho.mqtt.cpp
 cmake -Bbuild -H. -DPAHO_BUILD_STATIC=ON -DPAHO_BUILD_DOCUMENTATION=TRUE -DPAHO_BUILD_SAMPLES=TRUE
 sudo cmake --build build/ --target install
 sudo ldconfig
+```
+
+### 4-2.socket の実行
+## 4-2-1. C++
+```bash
+cd d2x/client/socket/cpp
+mkdir build && cd build
+cmake ..
+make -j4
+# 実行(GNSSデータをシリアルか読み込み補正→websocketでmqttを介してhtmlに送信)
+./socket
+```
+
+## 4-2-2. js
+```bash
+cd d2x/client/socket/js
+node gps.js # 事前にd2x以下でnpm ciを実行してmodulesをDLしておく
 ```
