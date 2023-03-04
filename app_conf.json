@@ -1,0 +1,26 @@
+{
+    "CLIENT":{
+        "SERIAL":{
+            "DEVICE":   "/dev/ttyACM0",
+            "BAUDRATE": 9600
+        },
+        "GPS":{
+            "NMEA_FORMAT_PATH": "../nmea_format.json",
+            "LOCAL_PUB_IP":     "localhost:1883",
+            "LOCAL_PUB_ID":     "publisher",
+            "SERVER_PUB_IP":    "192.168.3.32:1883",
+            "SERVER_PUB_ID":    "publisher",
+            "LOCAL_PUB_KEY":    "gps/ucsk"
+        },
+        "INDEX":{
+            "LOCAL_SUB_IP":  "ws://ucsk.local:15675",
+            "LOCAL_SUB_KEY": "gps/ucsk"
+        }
+    },
+    "SERVER":{
+        "DB_MANAGER":{
+            "SUB_IP":  "ws://big-ucsk.local:15675",
+            "SUB_KEY": "gps/#"
+        }
+    }
+}

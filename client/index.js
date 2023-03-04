@@ -1,3 +1,15 @@
+let requestURL = '../app_conf.json';
+let request = new XMLHttpRequest();
+request.open('GET', requestURL);
+request.responseType = 'json';
+request.send();
+
+// JSON to js object
+request.onload = function () {
+  let config = request.response;
+  config = JSON.parse(JSON.stringify(config));
+}
+
 var map = L.map('map').setZoom(18);
 L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -6,9 +18,11 @@ L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 //let mqttSub = mqtt.connect('ws://pi-ucsk.local:15675');
-let mqttSub = mqtt.connect('ws://ucsk.local:15675');
+//let mqttSub = mqtt.connect('ws://ucsk.local:15675');
+let mqttSub = mqtt.connect(config.CLIENT.LOCAL_SUB_IP);
 mqttSub.on('connect', function() {
-    mqttSub.subscribe('gps/ucsk');
+    // mqttSub.subscribe('gps/ucsk');
+    mqttSub.subscribe(config.CLIENT.LOCAL_SUB_KEY);
 });
 
 var addMarker = null;
