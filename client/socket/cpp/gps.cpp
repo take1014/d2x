@@ -240,7 +240,7 @@ GPS::event_loop(void)
     Json::FastWriter fastWriter;
     Json::Reader reader;
     std::ifstream json_fmt("../nmea_format.json");
-    mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps", "");
+    mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps/ucsk", "");
 
     while(true)
     {
