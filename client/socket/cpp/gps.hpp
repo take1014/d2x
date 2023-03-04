@@ -13,19 +13,23 @@ public:
     GPS();
     ~GPS();
     bool init(const std::string device, const Serial::BaudRate baudrate,
-                const std::string mqtt_ip="localhost:1883", const std::string mqtt_id="publisher");
+              const std::string mqtt_local_ip="localhost:1883", const std::string mqtt_local_id="publisher",
+              const std::string mqtt_server_ip="192.168.3.32:1883", const std::string mqtt_server_id="publisher");
     void start(void);
     void stop(void);
 private:
     void event_loop(void);
 
     std::string m_device;
-    std::string m_mqtt_ip;
-    std::string m_mqtt_id;
+    std::string m_mqtt_local_ip;
+    std::string m_mqtt_local_id;
+    std::string m_mqtt_server_ip;
+    std::string m_mqtt_server_id;
     Serial::BaudRate m_baudrate;
     Serial *m_gps_serial;
     std::thread  *m_gps_thread;
-    mqtt::client *m_mqtt_client;
+    mqtt::client *m_mqtt_local;
+    mqtt::client *m_mqtt_server;
 };
 
 

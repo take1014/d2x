@@ -180,11 +180,14 @@ parseGPZDA(const std::vector<std::string> &splitted_data, Json::Value &gpzda)
 
 GPS::GPS() : m_device(""),
              m_baudrate(Serial::eB9600),
-             m_mqtt_ip("mqtt://localhost:1883"),
-             m_mqtt_id("publisher"),
+             m_mqtt_local_ip("mqtt://localhost:1883"),
+             m_mqtt_local_id("publisher"),
+             m_mqtt_server_ip("mqtt://192.168.3.5:1883"),
+             m_mqtt_server_id("publisher"),
              m_gps_serial(nullptr),
              m_gps_thread(nullptr),
-             m_mqtt_client(nullptr){}
+             m_mqtt_local(nullptr),
+             m_mqtt_server(nullptr){}
 
 GPS::~GPS()
 {
@@ -193,7 +196,8 @@ GPS::~GPS()
 
 bool
 GPS::init(const std::string device, const Serial::BaudRate baudrate,
-          const std::string mqtt_ip, const std::string mqtt_id)
+          const std::string mqtt_local_ip, const std::string mqtt_local_id,
+          const std::string mqtt_server_ip, const std::string mqtt_server_id)
 {
     m_device     = device;
     m_baudrate   = baudrate;
@@ -206,13 +210,23 @@ GPS::init(const std::string device, const Serial::BaudRate baudrate,
     sleep(1);
 
     /* mqtt */
-    m_mqtt_ip = mqtt_ip;
-    m_mqtt_id = mqtt_id;
-    m_mqtt_client = new mqtt::client(mqtt_ip, mqtt_id, mqtt::create_options(MQTTVERSION_3_1));
-    m_mqtt_client->connect();
-    if (!m_mqtt_client->is_connected())
+    m_mqtt_local_ip = mqtt_local_ip;
+    m_mqtt_local_id = mqtt_local_id;
+    m_mqtt_local = new mqtt::client(mqtt_local_ip, mqtt_local_id, mqtt::create_options(MQTTVERSION_3_1));
+    m_mqtt_local->connect();
+    if (!m_mqtt_local->is_connected())
     {
-        std::cout << "mqtt connect error." << std::endl;
+        std::cout << "mqtt local connect error." << std::endl;
+        return false;
+    }
+
+    m_mqtt_server_ip = mqtt_server_ip;
+    m_mqtt_server_id = mqtt_server_id;
+    m_mqtt_server = new mqtt::client(mqtt_server_ip, mqtt_server_id, mqtt::create_options(MQTTVERSION_3_1));
+    m_mqtt_server->connect();
+    if (!m_mqtt_server->is_connected())
+    {
+        std::cout << "mqtt server connect error." << std::endl;
         return false;
     }
 
@@ -291,7 +305,8 @@ GPS::event_loop(void)
         std::cout << send_msg << std::endl;
         /* Send message to listeners */
         mqtt_msgptr->set_payload(send_msg);
-        m_mqtt_client->publish(mqtt_msgptr);
+        m_mqtt_local->publish(mqtt_msgptr);
+        m_mqtt_server->publish(mqtt_msgptr);
     }
 }
 
@@ -309,8 +324,10 @@ GPS::stop(void)
     m_gps_thread->join();
     delete m_gps_serial;
     delete m_gps_thread;
-    delete m_mqtt_client;
+    delete m_mqtt_local;
+    delete m_mqtt_server;
     m_gps_serial  = nullptr;
     m_gps_thread  = nullptr;
-    m_mqtt_client = nullptr;
+    m_mqtt_local  = nullptr;
+    m_mqtt_server = nullptr;
 }
