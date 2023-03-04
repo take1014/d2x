@@ -232,7 +232,7 @@ GPS::event_loop(void)
     {
         /* 100m sec/f */
         usleep(1000000.f);
-        std::istringstream iss(m_gps_serial->receive('\n'));
+        std::istringstream iss(m_gps_serial->recvMsg(true, '\n'));
         std::string line;
 
         /* Create Json object from json file */

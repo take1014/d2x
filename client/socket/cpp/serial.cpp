@@ -1,9 +1,14 @@
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "serial.hpp"
 
 // Constructor
-Serial::Serial() : m_device("/dev/ttyACM0"),
+Serial::Serial() : m_port(-1),
+                   m_device("/dev/ttyACM0"),
                    m_baudrate(eB9600){}
-Serial::Serial(const std::string device, const BaudRate baudrate): m_device(device),
+Serial::Serial(const std::string device, const BaudRate baudrate): m_port(-1),
+                                                                   m_device(device),
                                                                    m_baudrate(baudrate){}
 // Destructor
 Serial::~Serial()
@@ -21,7 +26,12 @@ Serial::kill(void)
         std::cout << "tcsetattr error." << std::endl;
         return false;
     }
-    close(m_port);
+
+    if (close(m_port) < 0)
+    {
+        std::cout << "serial close error." << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -73,52 +83,76 @@ Serial::init(void)
     return true;
 }
 
-// Receive message from serial.
+// Send message.
+// return true or false.
+bool
+Serial::sendMsg(const std::string &send_msg)
+{
+    if (send_msg.size() <= 0)
+    {
+        std::cout << "serial send message size error." << std::endl;
+        return false;
+    }
+
+    std::size_t send_sz = send_msg.size() + 1;
+    char *send_chars = new char[send_sz];
+    send_msg.copy(send_chars, send_msg.size());
+    send_chars[send_msg.size()] = '\0';   /* terminating character */
+    if(write(m_port, send_chars, send_sz) != send_sz)
+    {
+        std::cout << "serial send message error." << std::endl;
+        return false;
+    }
+    return true;
+}
+
+// Receive message.
 // return message from serial.
 std::string
-Serial::receive(const bool wait, const char terminate)
+Serial::recvMsg(std::size_t recv_sz)
 {
-    std::string received_msg;
-    bool is_received = false;
-    char received_char;
+    if (recv_sz <= 0)
+    {
+        std::cout << "serial recv_sz error." << std::endl;
+        return "";
+    }
+
+    std::string recv_msg;
+    char *recv_char = new char[recv_sz];
+    if (read(m_port, recv_char, recv_sz) != recv_sz)
+    {
+        std::cout << "serial receive message error." << std::endl;
+        return "";
+    }
+    return recv_msg;
+}
+
+// Receive message. (One character at a time.)
+// return message from serial.
+std::string
+Serial::recvMsg(const bool wait, const char terminate)
+{
+    std::string recv_msg;
+    bool is_recv = false;
+    char recv_char;
     while(true)
     {
-        int read_size = read(m_port, &received_char, 1);
-
-        if (read_size > 0)
+        if (read(m_port, &recv_char, 1) > 0)
         {
-            is_received = true;
-            received_msg.append(1, received_char);
-            if(received_char == terminate)
+            is_recv = true;
+            recv_msg.append(1, recv_char);
+            if(recv_char == terminate)
             {
                 break;
             }
         }
         else
         {
-            if(!wait || is_received)
+            if(!wait || is_recv)
             {
                 break;
             }
         }
     }
-    return received_msg;
-}
-
-// Send message to Serial
-// return true or false.
-bool
-Serial::send(const std::string &send_msg)
-{
-    std::size_t send_sz = send_msg.size() + 1;
-    char *send_chars = new char[send_sz];
-    send_msg.copy(send_chars, send_msg.size());
-    send_chars[send_msg.size()] = '\0';   /* terminating character */
-
-    if(write(m_port, send_chars, send_sz) != send_sz)
-    {
-        std::cout << "send message error." << std::endl;
-        return false;
-    }
-    return true;
+    return recv_msg;
 }
