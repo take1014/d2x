@@ -1,3 +1,6 @@
+#ifndef GPS_HPP
+#define GPS_HPP
+
 #include <iostream>
 #include <unistd.h>
 #include <thread>
@@ -5,33 +8,44 @@
 
 #include "serial.hpp"
 
-#ifndef GPS_HPP
-#define GPS_HPP
-
 class GPS{
 public:
+    struct GpsConf_t{
+        GpsConf_t () : device("/dev/ttyACM0"),
+                       baudrate(9600),
+                       mqtt_local_ip("localhost:1883"),
+                       mqtt_local_id("publisher"),
+                       mqtt_server_ip("192.168.3.32:1883"),
+                       mqtt_server_id("publisher"),
+                       mqtt_pub_key("gps/ucsk"),
+                       json_fmt_path("../nmea_format.json") {}
+
+        std::string device;
+        int baudrate;
+        std::string mqtt_local_ip;
+        std::string mqtt_local_id;
+        std::string mqtt_server_ip;
+        std::string mqtt_server_id;
+        std::string mqtt_pub_key;
+        std::string json_fmt_path;
+    };
+
     GPS();
     ~GPS();
-    bool init(const std::string device, const Serial::BaudRate baudrate,
-              const std::string mqtt_local_ip="localhost:1883", const std::string mqtt_local_id="publisher",
-              const std::string mqtt_server_ip="192.168.3.32:1883", const std::string mqtt_server_id="publisher");
-    void start(void);
-    void stop(void);
-private:
-    void event_loop(void);
+    bool init(GpsConf_t &gps_conf);
+    void start();
+    void stop();
 
-    std::string m_device;
-    std::string m_mqtt_local_ip;
-    std::string m_mqtt_local_id;
-    std::string m_mqtt_server_ip;
-    std::string m_mqtt_server_id;
-    Serial::BaudRate m_baudrate;
-    Serial *m_gps_serial;
+private:
+    void event_loop();
+
+    std::string   m_json_fmt_path;
+    std::string   m_mqtt_pub_key;
+    Serial       *m_gps_serial;
     std::thread  *m_gps_thread;
     mqtt::client *m_mqtt_local;
     mqtt::client *m_mqtt_server;
 };
-
 
 /* inline function */
 inline float convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }

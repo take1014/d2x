@@ -1,11 +1,27 @@
-#include <thread>
 #include "gps.hpp"
 #include "socket.hpp"
+#include <fstream>
+#include <json/json.h>
 
 int main()
 {
+    Json::Value app_conf;
+    Json::Reader reader;
+    std::ifstream conf_json("/home/take/fun/d2x/app_conf.json");
+    reader.parse(conf_json, app_conf);
+
     GPS gps = GPS();
-    if (gps.init("/dev/ttyACM0", Serial::eB9600))
+
+    /* Set GPS configs */
+    GPS::GpsConf_t gps_conf = GPS::GpsConf_t();
+    gps_conf.device         = app_conf["CLIENT"]["SERIAL"]["DEVICE"].asString();
+    gps_conf.baudrate       = app_conf["CLIENT"]["SERIAL"]["BAUDRATE"].asInt();
+    gps_conf.mqtt_local_ip  = app_conf["CLIENT"]["GPS"]["LOCAL_PUB_IP"].asString();
+    gps_conf.mqtt_local_id  = app_conf["CLIENT"]["GPS"]["LOCAL_PUB_ID"].asString();
+    gps_conf.mqtt_server_ip = app_conf["CLIENT"]["GPS"]["SERVER_PUB_IP"].asString();
+    gps_conf.mqtt_server_id = app_conf["CLIENT"]["GPS"]["SERVER_PUB_ID"].asString();
+
+    if (gps.init(gps_conf))
     {
         /* Execute GPS thread */
         gps.start();

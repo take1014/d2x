@@ -24,7 +24,7 @@ Socket::kill()
 {
     if (close(m_sockfd) < 0)
     {
-        std::cout << "socket close error." << std::endl;
+        std::cout << "Socket: close error." << std::endl;
         return false;
     }
     return true;
@@ -38,7 +38,7 @@ Socket::init()
     m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (m_sockfd < 0)
     {
-        std::cout << "socket error." << std::endl;
+        std::cout << "Socket: socket error." << std::endl;
         return false;
     }
 
@@ -56,7 +56,7 @@ Socket::init()
     /* connect socket */
     if (connect(m_sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0)
     {
-        std::cout << "socket connect error" << std::endl;
+        std::cout << "Socket: socket connect error" << std::endl;
         return false;
     }
 
@@ -70,7 +70,7 @@ Socket::sendMsg(const std::string &send_msg)
 {
     if (send_msg.size() <= 0)
     {
-        std::cout << "client socket send message size error." << std::endl;
+        std::cout << "Socket: client socket send message size error." << std::endl;
         return false;
     }
 
@@ -81,7 +81,7 @@ Socket::sendMsg(const std::string &send_msg)
 
     if (send(m_sockfd, send_chars, send_sz, 0) != send_sz)
     {
-        std::cout << "client socket send message error." << std::endl;
+        std::cout << "Socket: client socket send message error." << std::endl;
         return false;
     }
     return true;
@@ -94,7 +94,7 @@ Socket::recvMsg(std::size_t recv_sz)
 {
     if (recv_sz <= 0)
     {
-        std::cout << "client socket recv_sz error." << std::endl;
+        std::cout << "Socket: client socket recv_sz error." << std::endl;
         return "";
     }
 
@@ -102,7 +102,7 @@ Socket::recvMsg(std::size_t recv_sz)
     char *recv_char = new char[recv_sz];
     if (recv(m_sockfd, recv_char, recv_sz, 0) != recv_sz)
     {
-        std::cout << "client socket receive message error." << std::endl;
+        std::cout << "Socket: client socket receive message error." << std::endl;
         return "";
     }
 

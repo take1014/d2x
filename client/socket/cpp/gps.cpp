@@ -1,6 +1,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <thread>
+#include <filesystem>
 #include <json/json.h>
 
 #include "gps.hpp"
@@ -178,12 +180,8 @@ parseGPZDA(const std::vector<std::string> &splitted_data, Json::Value &gpzda)
 }
 
 
-GPS::GPS() : m_device(""),
-             m_baudrate(Serial::eB9600),
-             m_mqtt_local_ip("mqtt://localhost:1883"),
-             m_mqtt_local_id("publisher"),
-             m_mqtt_server_ip("mqtt://192.168.3.5:1883"),
-             m_mqtt_server_id("publisher"),
+GPS::GPS() : m_json_fmt_path("../nmea_format.json"),
+             m_mqtt_pub_key("gps/mykey"),
              m_gps_serial(nullptr),
              m_gps_thread(nullptr),
              m_mqtt_local(nullptr),
@@ -195,40 +193,46 @@ GPS::~GPS()
 }
 
 bool
-GPS::init(const std::string device, const Serial::BaudRate baudrate,
-          const std::string mqtt_local_ip, const std::string mqtt_local_id,
-          const std::string mqtt_server_ip, const std::string mqtt_server_id)
+GPS::init(GpsConf_t &gps_conf)
 {
-    m_device     = device;
-    m_baudrate   = baudrate;
-    m_gps_serial = new Serial(device, baudrate);
+    m_gps_serial = new Serial(gps_conf.device, gps_conf.baudrate);
     if (!m_gps_serial->init())
     {
-        std::cout << "GPS serial error." << std::endl;
+        std::cout << "GPS: Serial error." << std::endl;
         return false;
     }
     sleep(1);
 
     /* mqtt */
-    m_mqtt_local_ip = mqtt_local_ip;
-    m_mqtt_local_id = mqtt_local_id;
-    m_mqtt_local = new mqtt::client(mqtt_local_ip, mqtt_local_id, mqtt::create_options(MQTTVERSION_3_1));
+    m_mqtt_local = new mqtt::client(gps_conf.mqtt_local_ip, gps_conf.mqtt_local_id, mqtt::create_options(MQTTVERSION_3_1));
     m_mqtt_local->connect();
     if (!m_mqtt_local->is_connected())
     {
-        std::cout << "mqtt local connect error." << std::endl;
+        std::cout << "GPS: MQTT local connect error." << std::endl;
         return false;
     }
 
-    m_mqtt_server_ip = mqtt_server_ip;
-    m_mqtt_server_id = mqtt_server_id;
-    m_mqtt_server = new mqtt::client(mqtt_server_ip, mqtt_server_id, mqtt::create_options(MQTTVERSION_3_1));
+    m_mqtt_server = new mqtt::client(gps_conf.mqtt_server_ip, gps_conf.mqtt_server_id, mqtt::create_options(MQTTVERSION_3_1));
     m_mqtt_server->connect();
     if (!m_mqtt_server->is_connected())
     {
-        std::cout << "mqtt server connect error." << std::endl;
+        std::cout << "GPS: MQTT server connect error." << std::endl;
         return false;
     }
+
+    if (!std::filesystem::exists(gps_conf.json_fmt_path))
+    {
+        std::cout << "GPS: Json format path is not exists." << std::endl;
+        return false;
+    }
+    m_json_fmt_path = gps_conf.json_fmt_path;
+
+    if (gps_conf.mqtt_pub_key.find("gps") == std::string::npos)
+    {
+        std::cout << "GPS: PUB_KEY must start with \"gps/\"."  << std::endl;
+        return false;
+    }
+    m_mqtt_pub_key  = gps_conf.mqtt_pub_key;
 
     return true;
 }
@@ -239,8 +243,8 @@ GPS::event_loop(void)
     Json::Value gnss_data;
     Json::FastWriter fastWriter;
     Json::Reader reader;
-    std::ifstream json_fmt("../nmea_format.json");
-    mqtt::message_ptr mqtt_msgptr = mqtt::make_message("gps/ucsk", "");
+    std::ifstream json_fmt(m_json_fmt_path);
+    mqtt::message_ptr mqtt_msgptr = mqtt::make_message(m_mqtt_pub_key, "");
 
     while(true)
     {
