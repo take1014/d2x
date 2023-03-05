@@ -253,6 +253,7 @@ GPS::init(GpsConf_t &gps_conf)
     auto max_size = 1048576 * 5;
     auto max_files = 3;
     m_gps_logger = spdlog::rotating_logger_mt("GPS_LOG", "logs/gps.log", max_size, max_files);
+    m_gps_logger->set_pattern("[%H:%M:%S.%f] %v");
 
     return true;
 }
