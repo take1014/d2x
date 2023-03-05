@@ -271,37 +271,42 @@ GPS::event_loop(void)
             /* Parse */
             if (nmea_type == "GPGGA")
             {
-                parseGPGGA(splitted_data, gnss_data[nmea_type]);
+                parseGPGGA(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if (nmea_type == "GPRMC")
             {
-                parseGPRMC(splitted_data, gnss_data[nmea_type]);
+                parseGPRMC(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if (nmea_type == "GPGLL")
             {
-                parseGPGLL(splitted_data, gnss_data[nmea_type]);
+                parseGPGLL(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if (nmea_type == "GPGSA")
             {
-                parseGPGSA(splitted_data, gnss_data[nmea_type]);
+                parseGPGSA(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if (nmea_type == "GPGSV")
             {
-                parseGPGSV(splitted_data, gnss_data[nmea_type]);
+                parseGPGSV(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if (nmea_type == "GPVTG")
             {
-                parseGPVTG(splitted_data, gnss_data[nmea_type]);
+                parseGPVTG(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else if(nmea_type== "GPZDA")
             {
-                parseGPZDA(splitted_data, gnss_data[nmea_type]);
+                parseGPZDA(splitted_data, gnss_data["RAW_GNSS"][nmea_type]);
             }
             else
             {
                 continue;
             }
         }
+
+        /* TODO: Correct GNSS  */
+        gnss_data["GPS_OUTPUT"]["key"] = "takehara";
+        gnss_data["GPS_OUTPUT"]["latitude"]  = gnss_data["RAW_GNSS"]["GPRMC"]["latitude"];
+        gnss_data["GPS_OUTPUT"]["longitude"] = gnss_data["RAW_GNSS"]["GPRMC"]["longitude"];
 
         /* mqtt websocket */
         /* create send message*/
