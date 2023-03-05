@@ -56,4 +56,5 @@ int main(int argc, char *argv[])
     //     std::string recv_msg = socket->recvMsg();
     //     std::cout << recv_msg << std::endl;
     // }
+    return 1;
 }
