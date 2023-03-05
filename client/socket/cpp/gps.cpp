@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <json/json.h>
-#include "spdlog/sinks/rotating_file_sink.h"
 
 #include "gps.hpp"
 
@@ -187,7 +186,8 @@ GPS::GPS() : m_json_fmt_path("../nmea_format.json"),
              m_gps_serial(nullptr),
              m_gps_thread(nullptr),
              m_mqtt_local(nullptr),
-             m_mqtt_server(nullptr){}
+             m_mqtt_server(nullptr),
+             m_gps_logger(nullptr){}
 
 GPS::~GPS()
 {
@@ -236,6 +236,24 @@ GPS::init(GpsConf_t &gps_conf)
     }
     m_mqtt_pub_key  = gps_conf.mqtt_pub_key;
 
+    // Create logger
+    std::string log_dir = "./logs";
+    struct stat statbuf;
+    if (stat(log_dir.c_str(), &statbuf) != 0)
+    {
+        // Do not exist log dir
+        if(mkdir(log_dir.c_str(), 0777) != 0 )
+        {
+            std::cout << "Failed creating dir : ./logs" << std::endl;
+            return false;
+        }
+        std::cout << "Success creating dir : ./logs" << std::endl;
+    }
+    // Create a file rotating logger with 5mb size max and 3 rotated files
+    auto max_size = 1048576 * 5;
+    auto max_files = 3;
+    m_gps_logger = spdlog::rotating_logger_mt("GPS_LOG", "logs/gps.log", max_size, max_files);
+
     return true;
 }
 
@@ -247,22 +265,6 @@ GPS::event_loop(void)
     Json::Reader reader;
     std::ifstream json_fmt(m_json_fmt_path);
     mqtt::message_ptr mqtt_msgptr = mqtt::make_message(m_mqtt_pub_key, "");
-
-    // Create logger
-    std::string log_dir = "./logs";
-    struct stat statbuf;
-    if (stat(log_dir.c_str(), &statbuf) != 0)
-    {
-        if(mkdir(log_dir.c_str(), 0777) !=0 )
-        {
-            std::cout << "Failed creating dir : ./logs" << std::endl;
-        }
-        std::cout << "Success creating dir : ./logs" << std::endl;
-    }
-    // Create a file rotating logger with 5mb size max and 3 rotated files
-    auto max_size = 1048576 * 5;
-    auto max_files = 3;
-    auto gps_logger = spdlog::rotating_logger_mt("GPS_LOG", "logs/gps.log", max_size, max_files);
 
     while(true)
     {
@@ -335,7 +337,7 @@ GPS::event_loop(void)
         m_mqtt_local->publish(mqtt_msgptr);
         m_mqtt_server->publish(mqtt_msgptr);
         /* logger */
-        gps_logger->info(send_msg.replace(send_msg.end()-1, send_msg.end(),""));
+        m_gps_logger->info(send_msg.replace(send_msg.end()-1, send_msg.end(),""));
     }
 }
 
@@ -355,8 +357,10 @@ GPS::stop(void)
     delete m_gps_thread;
     delete m_mqtt_local;
     delete m_mqtt_server;
+    m_gps_logger.reset();
     m_gps_serial  = nullptr;
     m_gps_thread  = nullptr;
     m_mqtt_local  = nullptr;
     m_mqtt_server = nullptr;
+    m_gps_logger  = nullptr;
 }

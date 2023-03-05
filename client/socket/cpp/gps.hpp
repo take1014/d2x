@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <thread>
 #include <mqtt/client.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 
 #include "serial.hpp"
 
@@ -45,6 +46,7 @@ private:
     std::thread  *m_gps_thread;
     mqtt::client *m_mqtt_local;
     mqtt::client *m_mqtt_server;
+    std::shared_ptr<spdlog::logger> m_gps_logger;
 };
 
 /* inline function */
