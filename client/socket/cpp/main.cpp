@@ -1,13 +1,27 @@
 #include "gps.hpp"
 #include "socket.hpp"
 #include <fstream>
+#include <filesystem>
 #include <json/json.h>
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        std::cout << "you must set app_conf.json path" << std::endl;
+        return 0;
+    }
+
+    std::string app_conf_path = std::string(argv[1]);
+    if (!std::filesystem::exists(app_conf_path))
+    {
+        std::cout << "do not exists app_conf.json path" << std::endl;
+        return 0;
+    }
+
     Json::Value app_conf;
     Json::Reader reader;
-    std::ifstream conf_json("/home/take/fun/d2x/app_conf.json");
+    std::ifstream conf_json(app_conf_path);
     reader.parse(conf_json, app_conf);
 
     GPS gps = GPS();
