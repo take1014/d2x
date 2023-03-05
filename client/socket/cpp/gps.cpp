@@ -3,7 +3,9 @@
 #include <vector>
 #include <thread>
 #include <filesystem>
+#include <sys/stat.h>
 #include <json/json.h>
+#include "spdlog/sinks/rotating_file_sink.h"
 
 #include "gps.hpp"
 
@@ -246,6 +248,22 @@ GPS::event_loop(void)
     std::ifstream json_fmt(m_json_fmt_path);
     mqtt::message_ptr mqtt_msgptr = mqtt::make_message(m_mqtt_pub_key, "");
 
+    // Create logger
+    std::string log_dir = "./logs";
+    struct stat statbuf;
+    if (stat(log_dir.c_str(), &statbuf) != 0)
+    {
+        if(mkdir(log_dir.c_str(), 0777) !=0 )
+        {
+            std::cout << "Failed creating dir : ./logs" << std::endl;
+        }
+        std::cout << "Success creating dir : ./logs" << std::endl;
+    }
+    // Create a file rotating logger with 5mb size max and 3 rotated files
+    auto max_size = 1048576 * 5;
+    auto max_files = 3;
+    auto gps_logger = spdlog::rotating_logger_mt("GPS_LOG", "logs/gps.log", max_size, max_files);
+
     while(true)
     {
         /* 100m sec/f */
@@ -316,6 +334,8 @@ GPS::event_loop(void)
         mqtt_msgptr->set_payload(send_msg);
         m_mqtt_local->publish(mqtt_msgptr);
         m_mqtt_server->publish(mqtt_msgptr);
+        /* logger */
+        gps_logger->info(send_msg.replace(send_msg.end()-1, send_msg.end(),""));
     }
 }
 

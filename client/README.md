@@ -73,18 +73,30 @@ sudo cmake --build build/ --target install
 sudo ldconfig
 ```
 
-### 4-2.socket の実行
-## 4-2-1. C++
+### 4-2. Install logger
+#### 参考：https://github.com/gabime/spdlog
+```bash
+sudo apt install libspdlog-dev
+cd ~
+git clone https://github.com/gabime/spdlog.git
+cd spdlog && mkdir build && cd build
+cmake .. && make -j
+sudo make install
+sudo ldconfig
+```
+
+### 4-3.socket の実行
+#### 4-3-1. C++
 ```bash
 cd d2x/client/socket/cpp
 mkdir build && cd build
 cmake ..
 make -j4
 # 実行(GNSSデータをシリアルか読み込み補正→websocketでmqttを介してhtmlに送信)
-./socket
+./socket /path/to/app_conf.json
 ```
 
-## 4-2-2. js
+#### 4-3-2. js
 ```bash
 cd d2x/client/socket/js
 node gps.js # 事前にd2x以下でnpm ciを実行してmodulesをDLしておく
