@@ -1,5 +1,8 @@
-var map = L.map('map').setZoom(18);
-L.tileLayer('http://192.168.3.32/hot/{z}/{x}/{y}.png', {
+var map = L.map('map',{
+                    preferCanvas:true, //trueとし、Canvasレンダラーを選択
+                }).setZoom(18);
+//L.tileLayer('http://192.168.3.4/hot/{z}/{x}/{y}.png', {
+L.tileLayer('http://192.168.3.4/hot/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 21,
     maxNativeZoom: 20
