@@ -27,7 +27,7 @@ public:
     //explicit Serial(const std::string device, const BaudRate baudrate);
     Serial(const std::string device, const BaudRate baudrate);
     Serial(const std::string device, const int baudrate);
-    virtual ~Serial();
+    ~Serial();
     bool init();
     bool kill();
     bool sendMsg(const std::string &send_msg);

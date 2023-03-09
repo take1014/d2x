@@ -7,7 +7,7 @@ class Socket{
 public:
     Socket();
     Socket(std::string ipv4_addr, int port);
-    virtual ~Socket();
+    ~Socket();
     bool init();
     bool kill();
     bool sendMsg(const std::string &msg);

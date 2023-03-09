@@ -259,7 +259,7 @@ GPS::init(GpsConf_t &gps_conf)
 }
 
 void
-GPS::event_loop(void)
+GPS::event_loop()
 {
     Json::Value gnss_data;
     Json::FastWriter fastWriter;
@@ -343,7 +343,7 @@ GPS::event_loop(void)
 }
 
 void
-GPS::start(void)
+GPS::start()
 {
     /* Start GPS thread */
     std::cout << "GPS thread start." << std::endl;
@@ -351,7 +351,7 @@ GPS::start(void)
 }
 
 void
-GPS::stop(void)
+GPS::stop()
 {
     m_gps_thread->join();
     delete m_gps_serial;

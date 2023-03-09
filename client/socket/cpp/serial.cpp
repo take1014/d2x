@@ -44,7 +44,7 @@ Serial::~Serial()
 // Kill serial connection.
 // return true or false.
 bool
-Serial::kill(void)
+Serial::kill()
 {
    if (tcsetattr(m_port, TCSANOW, &m_oldtio) < 0)
     {
@@ -63,7 +63,7 @@ Serial::kill(void)
 // Initialize serial connection.
 // return true or false.
 bool
-Serial::init(void)
+Serial::init()
 {
    /* Initalize */
     m_port = open(m_device.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
