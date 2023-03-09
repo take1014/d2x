@@ -45,4 +45,3 @@ function readGPSData(data)
 
     oldData = jsonData;
 }
-
