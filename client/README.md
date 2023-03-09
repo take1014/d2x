@@ -76,7 +76,6 @@ sudo ldconfig
 ### 4-2. Install logger
 #### 参考：https://github.com/gabime/spdlog
 ```bash
-sudo apt install libspdlog-dev
 cd ~
 git clone https://github.com/gabime/spdlog.git
 cd spdlog && mkdir build && cd build
