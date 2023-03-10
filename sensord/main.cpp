@@ -1,8 +1,9 @@
-#include "gps.hpp"
-#include "socket.hpp"
+// #include "socket.hpp"
 #include <fstream>
 #include <filesystem>
 #include <json/json.h>
+
+#include "gpsd/gps.hpp"
 
 int main(int argc, char *argv[])
 {

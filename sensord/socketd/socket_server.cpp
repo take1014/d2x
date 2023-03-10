@@ -5,14 +5,14 @@
 #include <unistd.h>
 #include <string>
 
-#include "socket.hpp"
+#include "socket_server.hpp"
 
 // Constructor
-Socket::Socket() : m_sockfd(-1), m_port(1234), m_ipv4_addr("127.0.0.1"), m_connect(-1) {}
-Socket::Socket(std::string ipv4_addr, int port) : m_sockfd(-1), m_port(port), m_ipv4_addr(ipv4_addr), m_connect(-1) {}
+SocketServer::SocketServer() : m_sockfd(-1), m_port(1234), m_ipv4_addr("127.0.0.1"), m_connect(-1) {}
+SocketServer::SocketServer(std::string ipv4_addr, int port) : m_sockfd(-1), m_port(port), m_ipv4_addr(ipv4_addr), m_connect(-1) {}
 
 // Destructor
-Socket::~Socket()
+SocketServer::~SocketServer()
 {
     kill();
 }
@@ -20,17 +20,17 @@ Socket::~Socket()
 // Kill socket connection.
 // return true or false.
 bool
-Socket::kill()
+SocketServer::kill()
 {
     if (close(m_sockfd) < 0)
     {
-        std::cout << "socket close error." << std::endl;
+        std::cout << "SocketServer: socket close error." << std::endl;
         return false;
     }
 
     if (close(m_connect) < 0)
     {
-        std::cout << "socket connect close error." << std::endl;
+        std::cout << "SocketServer: socket connect close error." << std::endl;
         return false;
     }
 
@@ -40,12 +40,12 @@ Socket::kill()
 // Initialize socket connection.
 // return true or false.
 bool
-Socket::init()
+SocketServer::init()
 {
     m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (m_sockfd < 0)
     {
-        std::cout << "socket error." << std::endl;
+        std::cout << "SocketServer: socket error." << std::endl;
         return false;
     }
 
@@ -63,14 +63,14 @@ Socket::init()
     /* save socket */
     if (bind(m_sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
     {
-        std::cout << "socket bind error." << std::endl;
+        std::cout << "SocketServer: socket bind error." << std::endl;
         return false;
     }
 
     /* wait receive */
     if (listen(m_sockfd, SOMAXCONN) < 0)
     {
-        std::cout << "socket listen error." << std::endl;
+        std::cout << "SocketServer: socket listen error." << std::endl;
         close(m_sockfd);
         return false;
     }
@@ -81,7 +81,7 @@ Socket::init()
     m_connect = accept(m_sockfd, (struct sockaddr*)&get_addr, &len);
     if (m_connect < 0)
     {
-        std::cout << "socket accept error." << std::endl;
+        std::cout << "SocketServer: socket accept error." << std::endl;
         return false;
     }
     return true;
@@ -90,11 +90,11 @@ Socket::init()
 // Send message.
 // return true or false.
 bool
-Socket::sendMsg(const std::string &send_msg)
+SocketServer::sendMsg(const std::string &send_msg)
 {
     if (send_msg.size() <= 0)
     {
-        std::cout << "server socket send message size error." << std::endl;
+        std::cout << "SocketServer: socket send message size error." << std::endl;
         return false;
     }
 
@@ -104,7 +104,7 @@ Socket::sendMsg(const std::string &send_msg)
     send_chars[send_msg.size()] = '\0';   /* terminating character */
     if (send(m_connect, send_chars, send_sz, 0) != send_sz)
     {
-        std::cout << "sever socket send message error." << std::endl;
+        std::cout << "SocketServer: socket send message error." << std::endl;
         return false;
     }
     return true;
@@ -113,11 +113,11 @@ Socket::sendMsg(const std::string &send_msg)
 // Receive message.
 // return message from socket.
 std::string
-Socket::recvMsg(std::size_t recv_sz)
+SocketServer::recvMsg(std::size_t recv_sz)
 {
     if (recv_sz <= 0)
     {
-        std::cout << "server socket recv_sz error." << std::endl;
+        std::cout << "SocketServer: socket recv_sz error." << std::endl;
         return "";
     }
 
@@ -125,7 +125,7 @@ Socket::recvMsg(std::size_t recv_sz)
     char *recv_char = new char[recv_sz];
     if (recv(m_connect, recv_char, recv_sz, 0) != recv_sz)
     {
-        std::cout << "sever socket receive message error." << std::endl;
+        std::cout << "SocketServer: socket receive message error." << std::endl;
         return "";
     }
 
@@ -136,7 +136,7 @@ Socket::recvMsg(std::size_t recv_sz)
 // Receive message. (One character at a time.)
 // return message from socket.
 std::string
-Socket::recvMsg(const bool wait, const char terminate)
+SocketServer::recvMsg(const bool wait, const char terminate)
 {
     std::string recv_msg;
     bool is_recv = false;

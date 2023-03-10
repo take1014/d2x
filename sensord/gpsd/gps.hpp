@@ -7,7 +7,7 @@
 #include <mqtt/client.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
-#include "serial.hpp"
+#include "seriald/serial.hpp"
 
 class GPS{
 public:

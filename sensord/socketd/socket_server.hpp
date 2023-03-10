@@ -1,13 +1,13 @@
-#ifndef SOCKET_HPP
-#define SOCKET_HPP
+#ifndef SOCKET_SERVER_HPP
+#define SOCKET_SERVER_HPP
 
 #include <iostream>
 
-class Socket{
+class SocketServer{
 public:
-    Socket();
-    Socket(std::string ipv4_addr, int port);
-    ~Socket();
+    SocketServer();
+    SocketServer(std::string ipv4_addr, int port);
+    ~SocketServer();
     bool init();
     bool kill();
     bool sendMsg(const std::string &msg);
@@ -20,4 +20,4 @@ private:
     int m_connect;
     std::string m_ipv4_addr;
 };
-#endif /* SOCKET_HPP */
+#endif /* SOCKET_SERVER_HPP */
