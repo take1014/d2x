@@ -5,7 +5,7 @@ const mqtt       = require('mqtt');
 
 // define parameters
 var PORT = '/dev/ttyACM0';
-var BAUDRATE = 4800;
+var BAUDRATE = 9600;
 
 
 // define serialport
@@ -42,14 +42,15 @@ function readData(data)
         var nmeaData = nmea.parse(data.toString());
         if(nmeaData['id'] == 'GPRMC')
         {
-            var gpsData = {};
-            gpsData.id        = nmeaData['id'];
-            gpsData.latitude  = Number(nmeaData.latitude);
-            gpsData.longitude = Number(nmeaData.longitude);
+            var gpsData = {"GPS_OUTPUT":{"key":"", "latitude":0.0, "longitude":0.0}};
+            
+            gpsData["GPS_OUTPUT"]["key"]="takehara"
+            gpsData["GPS_OUTPUT"]["latitude"]  = Number(nmeaData.latitude);
+            gpsData["GPS_OUTPUT"]["longitude"] = Number(nmeaData.longitude);
             console.log(gpsData);
             if(gpsData.latitude != NaN && gpsData.longitude != NaN)
             {
-                mqttPub.publish('gps', JSON.stringify(gpsData));
+                mqttPub.publish('gps/ucsk', JSON.stringify(gpsData));
             }
         }
         else
