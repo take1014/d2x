@@ -285,6 +285,7 @@ GPS::event_loop()
                 continue;
             }
 
+            // 先頭の$, 末尾の\rを取り除いてsplit (\nはシリアルの受信時に削除されている)
             std::vector<std::string> splitted_data = split(line.substr(1, line.size()-2));
 
             /* Get NMEA type */
