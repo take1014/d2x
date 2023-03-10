@@ -181,7 +181,7 @@ parseGPZDA(const std::vector<std::string> &splitted_data, Json::Value &gpzda)
 }
 
 
-GPS::GPS() : m_json_fmt_path("../nmea_format.json"),
+GPS::GPS() : m_json_fmt_path("./nmea_format.json"),
              m_mqtt_pub_key("gps/mykey"),
              m_gps_serial(nullptr),
              m_gps_thread(nullptr),
@@ -195,7 +195,7 @@ GPS::~GPS()
 }
 
 bool
-GPS::init(GpsConf_t &gps_conf)
+GPS::init(const GpsConf_t &gps_conf)
 {
     m_gps_serial = new Serial(gps_conf.device, gps_conf.baudrate);
     if (!m_gps_serial->init())

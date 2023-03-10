@@ -33,7 +33,7 @@ public:
 
     GPS();
     ~GPS();
-    bool init(GpsConf_t &gps_conf);
+    bool init(const GpsConf_t &gps_conf);
     void start();
     void stop();
 
