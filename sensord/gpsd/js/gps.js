@@ -43,7 +43,6 @@ function readData(data)
         if(nmeaData['id'] == 'GPRMC')
         {
             var gpsData = {"GPS_OUTPUT":{"key":"", "latitude":0.0, "longitude":0.0}};
-            
             gpsData["GPS_OUTPUT"]["key"]="takehara"
             gpsData["GPS_OUTPUT"]["latitude"]  = Number(nmeaData.latitude);
             gpsData["GPS_OUTPUT"]["longitude"] = Number(nmeaData.longitude);
