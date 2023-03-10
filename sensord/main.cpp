@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     gps_conf.mqtt_local_id  = app_conf["CLIENT"]["GPS"]["LOCAL_PUB_ID"].asString();
     gps_conf.mqtt_server_ip = app_conf["CLIENT"]["GPS"]["SERVER_PUB_IP"].asString();
     gps_conf.mqtt_server_id = app_conf["CLIENT"]["GPS"]["SERVER_PUB_ID"].asString();
+    gps_conf.mqtt_pub_key   = app_conf["CLIENT"]["GPS"]["LOCAL_PUB_KEY"].asString();
+    gps_conf.json_fmt_path  = app_conf["CLIENT"]["GPS"]["NMEA_FORMAT_PATH"].asString();
 
     if (gps.init(gps_conf))
     {
