@@ -162,21 +162,17 @@ Serial::recvMsg(const bool wait, const char terminate)
     char recv_char;
     while(true)
     {
-        if (read(m_port, &recv_char, 1) > 0)
+        ssize_t errono = read(m_port, &recv_char, 1);
+        if (errono > 0)
         {
             is_recv = true;
             recv_msg.append(1, recv_char);
-            if(recv_char == terminate)
-            {
-                break;
-            }
+            if (recv_char == terminate) { break;}
         }
         else
         {
-            if(!wait || is_recv)
-            {
-                break;
-            }
+            if (errono == EINTR)  { continue; }
+            if (!wait || is_recv) {    break; }
         }
     }
     return recv_msg;
