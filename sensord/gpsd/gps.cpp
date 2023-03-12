@@ -51,12 +51,12 @@ parseGPGGA(const std::vector<std::string> &splitted_data, Json::Value &gpgga)
     gpgga["long_direction"]                   = splitted_data.at(5);
     gpgga["quality"]                          = convToIntFromDecimal(splitted_data.at(6));
     gpgga["number_of_satellites"]             = convToIntFromDecimal(splitted_data.at(7));
-    gpgga["horizontal_dilution_of_precision"] = convToFloat(splitted_data.at(8));
-    gpgga["altitude"]                         = convToFloat(splitted_data.at(9));
+    gpgga["horizontal_dilution_of_precision"] = convToDouble(splitted_data.at(8));
+    gpgga["altitude"]                         = convToDouble(splitted_data.at(9));
     gpgga["altitude_units"]                   = splitted_data.at(10);
-    gpgga["undulation"]                       = convToFloat(splitted_data.at(11));
+    gpgga["undulation"]                       = convToDouble(splitted_data.at(11));
     gpgga["undulation_units"]                 = splitted_data.at(12);
-    gpgga["age"]                              = convToFloat(splitted_data.at(13));
+    gpgga["age"]                              = convToDouble(splitted_data.at(13));
     gpgga["differential_station_ID"]          = splitted_data.at(14);
     gpgga["checksum"]                         = convToIntFromHex(splitted_data.at(15));
     return true;
@@ -72,10 +72,10 @@ parseGPRMC(const std::vector<std::string> &splitted_data, Json::Value &gprmc)
     gprmc["lat_direction"]                = splitted_data.at(4);
     gprmc["longitude"]                    = calcDecimalDegrees(splitted_data.at(5));
     gprmc["long_direction"]               = splitted_data.at(6);
-    gprmc["knots"]                        = convToFloat(splitted_data.at(7));
-    gprmc["degrees"]                      = convToFloat(splitted_data.at(8));
+    gprmc["knots"]                        = convToDouble(splitted_data.at(7));
+    gprmc["degrees"]                      = convToDouble(splitted_data.at(8));
     gprmc["date"]                         = splitted_data.at(9);
-    gprmc["magnetic_variation"]           = convToFloat(splitted_data.at(10));
+    gprmc["magnetic_variation"]           = convToDouble(splitted_data.at(10));
     gprmc["magnetic_variation_direction"] = splitted_data.at(11);
     gprmc["mode"]                         = splitted_data.at(12);
     gprmc["checksum"]                     = convToIntFromHex(splitted_data.at(13));
@@ -115,9 +115,9 @@ parseGPGSA(const std::vector<std::string> &splitted_data, Json::Value &gpgsa)
     gpgsa["satellite_id_10"] = convToIntFromDecimal(splitted_data.at(12));
     gpgsa["satellite_id_11"] = convToIntFromDecimal(splitted_data.at(13));
     gpgsa["satellite_id_12"] = convToIntFromDecimal(splitted_data.at(14));
-    gpgsa["pdop"]            = convToFloat(splitted_data.at(15));
-    gpgsa["hdop"]            = convToFloat(splitted_data.at(16));
-    gpgsa["vdop"]            = convToFloat(splitted_data.at(17));
+    gpgsa["pdop"]            = convToDouble(splitted_data.at(15));
+    gpgsa["hdop"]            = convToDouble(splitted_data.at(16));
+    gpgsa["vdop"]            = convToDouble(splitted_data.at(17));
     gpgsa["checksum"]        = convToIntFromHex(splitted_data.at(18));
     return true;
 }

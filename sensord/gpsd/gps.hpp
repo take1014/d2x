@@ -50,10 +50,10 @@ private:
 };
 
 /* inline function */
-inline float convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }
+inline float  convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }
 inline double convToDouble(const std::string &data){ return (data.empty()) ? 0.f : std::stod(data); }
-inline int   convToIntFromDecimal(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 10); }
-inline int   convToIntFromHex(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 16); }
+inline int    convToIntFromDecimal(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 10); }
+inline int    convToIntFromHex(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 16); }
 
 inline std::string calcUTC(const std::string &value)
 {
