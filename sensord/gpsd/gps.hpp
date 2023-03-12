@@ -51,6 +51,7 @@ private:
 
 /* inline function */
 inline float convToFloat(const std::string &data){ return (data.empty()) ? 0.f : std::stof(data); }
+inline double convToDouble(const std::string &data){ return (data.empty()) ? 0.f : std::stod(data); }
 inline int   convToIntFromDecimal(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 10); }
 inline int   convToIntFromHex(const std::string &data){ return (data.empty()) ? 0 : std::stoi(data, nullptr, 16); }
 
@@ -63,17 +64,17 @@ inline std::string calcUTC(const std::string &value)
     return str_hour + ":" + str_min + ":" + str_sec;
 }
 
-inline float calcDecimalDegrees(const std::string &value)
+inline double calcDecimalDegrees(const std::string &value)
 {
-    constexpr float DISABLE_DECIMAL_DEGREES = 999;
+    constexpr double DISABLE_DECIMAL_DEGREES = 999;
 
     if (value.empty()) return DISABLE_DECIMAL_DEGREES;
     /* set degrees */
     std::string str_deg = value.substr(0, value.find(".")-2);
-    float degrees = convToFloat(str_deg);
+    double degrees = convToDouble(str_deg);
     /* set minuntes */
     std::string str_min = value.substr(value.find(".")-2);
-    float minutes = convToFloat(str_min);
+    double minutes = convToDouble(str_min);
     /* set decimal_degrees */
     return (degrees >= 0.f) ? degrees + minutes / 60.f : degrees - minutes / 60.f;
 }
