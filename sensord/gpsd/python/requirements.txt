@@ -1,0 +1,4 @@
+certifi @ file:///croot/certifi_1671487769961/work/certifi
+paho-mqtt==1.6.1
+pynmea2==1.19.0
+pyserial==3.5
