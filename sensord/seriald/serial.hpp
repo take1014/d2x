@@ -31,7 +31,7 @@ public:
     bool init();
     bool kill();
     bool sendMsg(const std::string &send_msg);
-    std::string recvMsg(std::size_t recv_sz);
+    std::string recvMsg(const std::size_t recv_sz);
     std::string recvMsg(const bool wait=true, const char terminate='\0');   // One character at a time.
 
 private:

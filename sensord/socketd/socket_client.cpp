@@ -90,7 +90,7 @@ SocketClient::sendMsg(const std::string &send_msg)
 // Receive message.
 // return message from socket.
 std::string
-SocketClient::recvMsg(std::size_t recv_sz)
+SocketClient::recvMsg(const std::size_t recv_sz)
 {
     if (recv_sz <= 0)
     {

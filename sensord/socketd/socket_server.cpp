@@ -113,7 +113,7 @@ SocketServer::sendMsg(const std::string &send_msg)
 // Receive message.
 // return message from socket.
 std::string
-SocketServer::recvMsg(std::size_t recv_sz)
+SocketServer::recvMsg(const std::size_t recv_sz)
 {
     if (recv_sz <= 0)
     {

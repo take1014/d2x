@@ -134,7 +134,7 @@ Serial::sendMsg(const std::string &send_msg)
 // Receive message.
 // return message from serial.
 std::string
-Serial::recvMsg(std::size_t recv_sz)
+Serial::recvMsg(const std::size_t recv_sz)
 {
     if (recv_sz <= 0)
     {
