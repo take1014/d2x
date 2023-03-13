@@ -18,14 +18,16 @@ class GPS:
         self.timeout  = timeout
         self.ser = serial.Serial(port=self.serial_port, baudrate=self.baudrate, timeout=self.timeout)
         self.mqtt_client = mqtt.Client()
-        def on_connect(client, userdata, flag, rc):
-            print("Connected with result code " + str(rc))
-        def on_publish(client, userdata, mid):
-            print("publish: {0}".format(mid))
-        self.mqtt_client.on_connect = on_connect
-        self.mqtt_client.on_publish = on_publish
+        self.mqtt_client.on_connect = self._callback_on_connect
+        self.mqtt_client.on_publish = self._callback_on_publish
         self.mqtt_client.connect(host=mqtt_pub_url, port=mqtt_pub_port)
         self.mqtt_client.loop_start()
+
+    def _callback_on_connect(self, client, userdata, flag, rc):
+        print("Connected with result code " + str(rc))
+
+    def _callback_on_publish(self, client, userdata, mid):
+        print("publish: {0}".format(mid))
 
     def publish(self, nmea_json):
         self.mqtt_client.publish(topic="gps/ucsk", payload=json.dumps(nmea_json))
@@ -141,7 +143,6 @@ if __name__ == "__main__":
     while True:
         msg = gps.recvMsg()
         nmea = parser.parse(msg)
-
         print(nmea)
         if nmea.sentence_type == "GGA":
             gps.parseGPGGA(nmea, nmea_json)
