@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 import sys
+import socket
 import json
 import pynmea2 as parser
 import paho.mqtt.client as mqtt
@@ -9,18 +10,18 @@ from serial.tools import list_ports
 
 class GPS:
     def __init__(self, serial_port="/dev/ttyACM0", baudrate=9600, timeout=None,
-                       mqtt_pub_url="localhost", mqtt_pub_port=1883):
+                       mqtt_pub_host=socket.gethostname(), mqtt_pub_port=1883):
         devices = [info.device for info in list_ports.comports()]
         assert (serial_port in devices), ("Do not exists port -> {}".format(serial_port))
         assert (baudrate==4800 or baudrate==9600 or baudrate==19200 or baudrate==38400), ("baudrate must be 4800, 9600, 19200, 38400 but {}".format(baudrate))
-        self.serial_port     = serial_port
-        self.baudrate = baudrate
-        self.timeout  = timeout
-        self.ser = serial.Serial(port=self.serial_port, baudrate=self.baudrate, timeout=self.timeout)
+
+        self.m_hostname  = mqtt_pub_host
+        self.serial_port = serial_port
+        self.ser = serial.Serial(port=self.serial_port, baudrate=baudrate, timeout=timeout)
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_connect = self._callback_on_connect
         self.mqtt_client.on_publish = self._callback_on_publish
-        self.mqtt_client.connect(host=mqtt_pub_url, port=mqtt_pub_port)
+        self.mqtt_client.connect(host=self.m_hostname, port=mqtt_pub_port)
         self.mqtt_client.loop_start()
 
     def _callback_on_connect(self, client, userdata, flag, rc):
