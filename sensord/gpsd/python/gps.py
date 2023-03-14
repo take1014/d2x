@@ -40,7 +40,7 @@ class GPS:
         self.ser.write(msg)
 
     def parseGPGGA(self, nmea, nmea_json):
-        nmea_json["RAW_GNSS"]["GPGGA"]["time_utc"]       = nmea.timestamp.isoformat()
+        nmea_json["RAW_GNSS"]["GPGGA"]["time_utc"]       = nmea.timestamp.isoformat() if nmea.timestamp != None else ""
         nmea_json["RAW_GNSS"]["GPGGA"]["latitude"]       = nmea.latitude
         nmea_json["RAW_GNSS"]["GPGGA"]["lat_direction"]  = nmea.lat_dir
         nmea_json["RAW_GNSS"]["GPGGA"]["longitude"]      = nmea.longitude
@@ -52,21 +52,21 @@ class GPS:
         nmea_json["RAW_GNSS"]["GPGGA"]["altitude_units"] = nmea.altitude_units
         nmea_json["RAW_GNSS"]["GPGGA"]["undulation"] = float(nmea.geo_sep) if nmea.geo_sep != '' else 0.0
         nmea_json["RAW_GNSS"]["GPGGA"]["undulation_units"] = nmea.geo_sep_units
-        nmea_json["RAW_GNSS"]["GPGGA"]["age"] = float(nmea.age_gps_data) if (nmea.age_gps_data != '') else 0.0
+        nmea_json["RAW_GNSS"]["GPGGA"]["age"] = float(nmea.age_gps_data) if nmea.age_gps_data != '' else 0.0
         nmea_json["RAW_GNSS"]["GPGGA"]["differential_station_ID"] = nmea.ref_station_id
         nmea_json["RAW_GNSS"]["GPGGA"]["checksum"] = nmea.checksum(msg)
 
     def parseGPRMC(self, nmea, nmea_json):
-        nmea_json["RAW_GNSS"]["GPRMC"]["time_utc"]                     = nmea.datetime.isoformat()
+        nmea_json["RAW_GNSS"]["GPRMC"]["time_utc"]                     = nmea.timestamp.isoformat() if nmea.timestamp != None else ""
         nmea_json["RAW_GNSS"]["GPRMC"]["status"]                       = nmea.status
         nmea_json["RAW_GNSS"]["GPRMC"]["latitude"]                     = nmea.latitude
         nmea_json["RAW_GNSS"]["GPRMC"]["lat_direction"]                = nmea.lat_dir
         nmea_json["RAW_GNSS"]["GPRMC"]["longitude"]                    = nmea.longitude
         nmea_json["RAW_GNSS"]["GPRMC"]["long_direction"]               = nmea.lon_dir
         nmea_json["RAW_GNSS"]["GPRMC"]["knots"]                        = nmea.spd_over_grnd
-        nmea_json["RAW_GNSS"]["GPRMC"]["degrees"]                      = float(nmea.true_course) if (nmea.true_course != None) else 0.0
-        nmea_json["RAW_GNSS"]["GPRMC"]["date"]                         = nmea.datetime.isoformat()
-        nmea_json["RAW_GNSS"]["GPRMC"]["magnetic_variation"]           = float(nmea.mag_variation) if(nmea.mag_variation != '') else 0.0
+        nmea_json["RAW_GNSS"]["GPRMC"]["degrees"]                      = float(nmea.true_course) if nmea.true_course != None else 0.0
+        nmea_json["RAW_GNSS"]["GPRMC"]["date"]                         = nmea.datestamp.isoformat() if nmea.datestamp != None else ""
+        nmea_json["RAW_GNSS"]["GPRMC"]["magnetic_variation"]           = float(nmea.mag_variation) if nmea.mag_variation != '' else 0.0
         nmea_json["RAW_GNSS"]["GPRMC"]["magnetic_variation_direction"] = nmea.mag_var_dir
         nmea_json["RAW_GNSS"]["GPRMC"]["mode"]                         = nmea.mode_indicator
         nmea_json["RAW_GNSS"]["GPRMC"]["checksum"]                     = nmea.checksum(msg)
@@ -76,7 +76,7 @@ class GPS:
         nmea_json["RAW_GNSS"]["GPGLL"]["lat_direction"]  = nmea.lat_dir
         nmea_json["RAW_GNSS"]["GPGLL"]["longitude"]      = nmea.longitude
         nmea_json["RAW_GNSS"]["GPGLL"]["long_direction"] = nmea.lon_dir
-        nmea_json["RAW_GNSS"]["GPGLL"]["time_utc"]       = nmea.timestamp.isoformat()
+        nmea_json["RAW_GNSS"]["GPGLL"]["time_utc"]       = nmea.timestamp.isoformat() if nmea.timestamp != None else ""
         nmea_json["RAW_GNSS"]["GPGLL"]["status"]         = nmea.status
         nmea_json["RAW_GNSS"]["GPGLL"]["mode"]           = nmea.faa_mode
         nmea_json["RAW_GNSS"]["GPGLL"]["checksum"]       = nmea.checksum(msg)
