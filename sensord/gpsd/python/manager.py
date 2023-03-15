@@ -3,6 +3,7 @@
 import sys
 import json
 import threading
+
 from gps import GPS
 from nmea_parser import NMEAParser
 
@@ -20,9 +21,12 @@ def run_gps()->None:
         # get message from serial.
         msg  = gps.recvMsg()
         if len(msg) < 4 or msg[0]!='$': continue
+
         # parse message from string to NMEA format.
         nmea_type, parsed_nmea = parser.parseNMEA(msg)
         if nmea_type == None: continue
+        # Synchronize with GPS by starting GPRMC
+        if nmea_cnt == 0 and nmea_type != "GPRMC": continue
 
         print(msg.strip())
 
