@@ -1,4 +1,8 @@
 certifi @ file:///croot/certifi_1671487769961/work/certifi
+numpy==1.24.2
 paho-mqtt==1.6.1
+pybind11==2.10.3
 pynmea2==1.19.0
 pyserial==3.5
+scipy==1.10.1
+spdlog==2.0.4

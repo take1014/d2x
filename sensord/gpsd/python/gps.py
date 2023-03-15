@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 import sys
+import os
 import socket
 import json
-import pynmea2 as parser
-import paho.mqtt.client as mqtt
 import serial
 from serial.tools import list_ports
+
+import spdlog as spd
+import pynmea2 as parser
+import paho.mqtt.client as mqtt
 
 class GPS:
     def __init__(self, serial_port="/dev/ttyACM0", baudrate=9600, timeout=None,
@@ -16,8 +19,15 @@ class GPS:
         assert (baudrate==4800 or baudrate==9600 or baudrate==19200 or baudrate==38400), ("baudrate must be 4800, 9600, 19200, 38400 but {}".format(baudrate))
 
         self.m_hostname  = mqtt_pub_host
+        # serial
         self.serial_port = serial_port
         self.ser = serial.Serial(port=self.serial_port, baudrate=baudrate, timeout=timeout)
+        # logger
+        if not os.path.exists("./logs"):
+            os.mkdir("./logs")
+        self.logger = spd.RotatingLogger("GPS_LOG", "logs/gps.log", True, 1048576*5, 3)
+        self.logger.set_pattern("[%H:%M:%S.%f] %v")
+        # mqtt
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_connect = self._callback_on_connect
         self.mqtt_client.on_publish = self._callback_on_publish
@@ -29,6 +39,9 @@ class GPS:
 
     def _callback_on_publish(self, client, userdata, mid):
         print("publish: {0}".format(mid))
+
+    def writeLog(self, nmea_json):
+        self.logger.info(json.dumps(nmea_json))
 
     def publish(self, nmea_json):
         self.mqtt_client.publish(topic="gps/ucsk", payload=json.dumps(nmea_json))
@@ -165,4 +178,5 @@ if __name__ == "__main__":
         nmea_json["GPS_OUTPUT"]["latitude"] = nmea_json["RAW_GNSS"]["GPRMC"]["latitude"]
         nmea_json["GPS_OUTPUT"]["longitude"] = nmea_json["RAW_GNSS"]["GPRMC"]["longitude"]
 
+        gps.writeLog(nmea_json)
         gps.publish(nmea_json)
