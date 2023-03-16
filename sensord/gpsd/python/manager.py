@@ -8,12 +8,22 @@ from gps import GPS
 from nmea_parser import NMEAParser
 
 def run_gps()->None:
-    gps = GPS()
+   #  gps = GPS(serial_port="/dev/ttyUSB0")
+    gps = GPS(serial_port="/dev/ttyACM0")
     parser = NMEAParser()
 
     nmea_cnt = 0
-    sizeof_notlist_nmea = 5 # total count excluse GPGSV 
-    total_nmea_sz = 0    # total count include GPGSV
+    # TODO: must define extrinsic parameter
+    # Change the value to 6 if you use a GPS that supports
+    # both GPGSA and GNGSA reception
+    sizeof_notlist_nmea = 5 # default: RMC, VTG, GGA, GLL, GSA (excluse GSV)
+    total_nmea_sz = sizeof_notlist_nmea    # total count include GPGSV
+    # Initialize flags
+    isinit_gpgsv = False
+    isinit_gngsv = False
+    isinit_gpgsa = False
+    isinit_gngsa = False
+    issync = False
 
     nmea_json = dict()
 
@@ -24,26 +34,60 @@ def run_gps()->None:
 
         # parse message from string to NMEA format.
         nmea_type, parsed_nmea = parser.parseNMEA(msg)
-        if nmea_type == None: continue
-        # Synchronize with GPS by starting GPRMC
-        if nmea_cnt == 0 and nmea_type != "GPRMC": continue
+
+        if nmea_type == None or nmea_type[2:] == "TXT": continue
+        if nmea_cnt == 0:
+            issync = True if nmea_type[2:] == "GSV" and parsed_nmea["message_number"] == 1 else False
+
+        #  Not process if out of sync
+        if not issync: continue
 
         print(msg.strip())
-
         nmea_json = {"GPS_OUTPUT":{}, "RAW_GNSS":{}} if nmea_cnt == 0 else nmea_json
-        if nmea_type != "GPGSV":
-            nmea_json["RAW_GNSS"][nmea_type] = parsed_nmea
-        else:
-            if total_nmea_sz == 0:
-                # initilize GPGSV elements
+        if nmea_type == "GPGSV" :
+            if not isinit_gpgsv:
+                # Initialize GPGSV
                 nmea_json["RAW_GNSS"][nmea_type] = []
-                total_nmea_sz = sizeof_notlist_nmea + parsed_nmea["total_message_num"]
+                total_nmea_sz += parsed_nmea["total_message_num"]
+                isinit_gpgsv = True
             # needs processing per sattelite.
             nmea_json["RAW_GNSS"][nmea_type].append(parsed_nmea)
+            nmea_cnt += 1
 
-        # increment saved nmea count
-        nmea_cnt += 1
-        if nmea_cnt == total_nmea_sz:
+        elif nmea_type == "GLGSV":
+            # TODO: create parser
+            # if not isinit_gngsv:
+            #     # Initialize GSGSV
+            #     nmea_json["RAW_GNSS"][nmea_type] = []
+            #     total_nmea_sz += parsed_nmea["total_message_num"]
+            #     isinit_gngsv = True
+            # # needs processing per sattelite.
+            # nmea_json["RAW_GNSS"][nmea_type].append(parsed_nmea)
+            continue
+
+        elif nmea_type == "GPGSA":
+            # There are more than 12 satellites,
+            # but since they are not used, only one type of GSA is saved.
+            if not isinit_gpgsa:
+                nmea_json["RAW_GNSS"][nmea_type] = parsed_nmea
+                isinit_gpgsa = True
+                nmea_cnt += 1
+
+        elif nmea_type == "GNGSA":
+            # There are more than 12 satellites,
+            # but since they are not used, only one type of GSA is saved.
+            if not isinit_gngsa:
+                nmea_json["RAW_GNSS"][nmea_type] = parsed_nmea
+                isinit_gngsa = True
+                nmea_cnt += 1
+
+        # RMC, VTG, GGA, GLL
+        else:
+            nmea_json["RAW_GNSS"][nmea_type] = parsed_nmea
+            # increment saved nmea count
+            nmea_cnt += 1
+
+        if (nmea_cnt == total_nmea_sz) and (total_nmea_sz != sizeof_notlist_nmea):
             nmea_json["GPS_OUTPUT"]["key"] = gps.hostname
             nmea_json["GPS_OUTPUT"]["latitude"]  = nmea_json["RAW_GNSS"]["GPRMC"]["latitude"]
             nmea_json["GPS_OUTPUT"]["longitude"] = nmea_json["RAW_GNSS"]["GPRMC"]["longitude"]
@@ -53,7 +97,13 @@ def run_gps()->None:
             gps.publish(json.dumps(nmea_json))
             # initialize counter
             nmea_cnt = 0
-            total_nmea_sz = 0
+            total_nmea_sz = sizeof_notlist_nmea
+            # Initialize init_flags
+            isinit_gpgsv=False
+            isinit_gngsv=False
+            isinit_gpgsa=False
+            isinit_gngsa=False
+            issync = False
 
 def main() -> None:
     # TODO:add proccesing thread

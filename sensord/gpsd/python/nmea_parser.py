@@ -1,5 +1,6 @@
 #!usr/bin/env python3
 #-*- coding:utf-8 -*-
+import sys
 import pynmea2 as parser
 
 class NMEAParser:
@@ -9,38 +10,35 @@ class NMEAParser:
     def parseNMEA(self, sentence:str):
         self.sentence = sentence
         nmea = parser.parse(sentence)
-        nmea_type = None
         if nmea.sentence_type == "RMC":
-            nmea_type = "GPRMC"
-            parsed_sentence = self.__parseGPRMC(nmea)
+            parsed_sentence = self.__parseRMC(nmea)
         elif nmea.sentence_type == "VTG":
-            nmea_type = "GPVTG"
-            parsed_sentence = self.__parseGPVTG(nmea)
+            parsed_sentence = self.__parseVTG(nmea)
         elif nmea.sentence_type == "GGA":
-            nmea_type = "GPGGA"
-            parsed_sentence = self.__parseGPGGA(nmea)
+            parsed_sentence = self.__parseGGA(nmea)
         elif nmea.sentence_type == "GSA":
-            nmea_type = "GPGSA"
-            parsed_sentence = self.__parseGPGSA(nmea)
+            parsed_sentence = self.__parseGSA(nmea)
         elif nmea.sentence_type == "GSV":
-            nmea_type = "GPGSV"
             parsed_sentence = self.__parseGPGSV(nmea)
         elif nmea.sentence_type == "GLL":
-            nmea_type = "GPGLL"
-            parsed_sentence = self.__parseGPGLL(nmea)
+            parsed_sentence = self.__parseGLL(nmea)
         elif nmea.sentence_type == "ZDA":
             # not get GPZDA using VFAN
             parsed_sentence = None
         else:
             parsed_sentence = None
 
-        # calc checksum
+        # get nmea_type and calc checksum
         if parsed_sentence is not None:
+            nmea_type = nmea.identifier().replace(',','')
             parsed_sentence["checksum"] = nmea.checksum(sentence)
+        else:
+            nmea_type = None
 
         return nmea_type, parsed_sentence
 
-    def __parseGPGGA(self, nmea):
+    def __parseGGA(self, nmea):
+        # print(nmea.render)
         gpgga = dict()
         gpgga["time_utc"]       = nmea.timestamp.isoformat() if nmea.timestamp != None else ""
         gpgga["latitude"]       = nmea.latitude
@@ -59,7 +57,7 @@ class NMEAParser:
         # gpgga["checksum"] = nmea.checksum(msg)
         return gpgga
 
-    def __parseGPRMC(self, nmea):
+    def __parseRMC(self, nmea):
         gprmc = dict()
         gprmc["time_utc"]                     = nmea.timestamp.isoformat() if nmea.timestamp != None else ""
         gprmc["status"]                       = nmea.status
@@ -76,7 +74,7 @@ class NMEAParser:
         # gprmc["checksum"]                     = nmea.checksum(msg)
         return gprmc
 
-    def __parseGPGLL(self, nmea):
+    def __parseGLL(self, nmea):
         gpgll = dict()
         gpgll["latitude"]       = nmea.latitude
         gpgll["lat_direction"]  = nmea.lat_dir
@@ -88,7 +86,7 @@ class NMEAParser:
         # gpgll["checksum"]       = nmea.checksum(msg)
         return gpgll
 
-    def __parseGPGSA(self, nmea):
+    def __parseGSA(self, nmea):
         gpgsa = dict()
         gpgsa["mode"]            = nmea.mode
         gpgsa["status"]          = int(nmea.mode_fix_type)
@@ -134,7 +132,7 @@ class NMEAParser:
         # gpgsv["checksum"]               = nmea.checksum(msg)
         return gpgsv
 
-    def __parseGPVTG(self, nmea):
+    def __parseVTG(self, nmea):
         gpvtg = dict()
         gpvtg["track"]               = float(nmea.true_track) if nmea.true_track != None else 0.0
         gpvtg["track_mode"]          = nmea.true_track_sym
