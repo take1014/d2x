@@ -8,7 +8,7 @@ from gps import GPS
 from nmea_parser import NMEAParser
 
 def run_gps()->None:
-   #  gps = GPS(serial_port="/dev/ttyUSB0")
+    # gps = GPS(serial_port="/dev/ttyUSB0")
     gps = GPS(serial_port="/dev/ttyACM0")
     parser = NMEAParser()
 
@@ -20,7 +20,7 @@ def run_gps()->None:
     total_nmea_sz = sizeof_notlist_nmea    # total count include GPGSV
     # Initialize flags
     isinit_gpgsv = False
-    isinit_gngsv = False
+    isinit_glgsv = False
     isinit_gpgsa = False
     isinit_gngsa = False
     issync = False
@@ -56,14 +56,14 @@ def run_gps()->None:
 
         elif nmea_type == "GLGSV":
             # TODO: create parser
-            # if not isinit_gngsv:
-            #     # Initialize GSGSV
-            #     nmea_json["RAW_GNSS"][nmea_type] = []
-            #     total_nmea_sz += parsed_nmea["total_message_num"]
-            #     isinit_gngsv = True
-            # # needs processing per sattelite.
-            # nmea_json["RAW_GNSS"][nmea_type].append(parsed_nmea)
-            continue
+            if not isinit_glgsv:
+                # Initialize GPGSV
+                nmea_json["RAW_GNSS"][nmea_type] = []
+                total_nmea_sz += parsed_nmea["total_message_num"]
+                isinit_glgsv = True
+            # needs processing per sattelite.
+            nmea_json["RAW_GNSS"][nmea_type].append(parsed_nmea)
+            nmea_cnt += 1
 
         elif nmea_type == "GPGSA":
             # There are more than 12 satellites,
@@ -100,7 +100,7 @@ def run_gps()->None:
             total_nmea_sz = sizeof_notlist_nmea
             # Initialize init_flags
             isinit_gpgsv=False
-            isinit_gngsv=False
+            isinit_glgsv=False
             isinit_gpgsa=False
             isinit_gngsa=False
             issync = False
