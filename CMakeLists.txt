@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.5)
 project(socket)
 
 
-include_directories(./ ./sensord)
-file(GLOB SRC_LIST ./sensord/*.cpp ./sensord/*/*.cpp ./sensord/*/*.hpp)
+include_directories(./ ./sensord ./sensord/cpp)
+file(GLOB SRC_LIST ./sensord/cpp/*.cpp ./sensord/cpp/*/*.cpp ./sensord/cpp/*/*.hpp)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
