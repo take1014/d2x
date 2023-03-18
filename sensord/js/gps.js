@@ -46,9 +46,9 @@ function readData(data)
             gpsData["GPS_OUTPUT"]["key"]="takehara"
             gpsData["GPS_OUTPUT"]["latitude"]  = Number(nmeaData.latitude);
             gpsData["GPS_OUTPUT"]["longitude"] = Number(nmeaData.longitude);
-            console.log(gpsData);
-            if(gpsData.latitude != NaN && gpsData.longitude != NaN)
+            if(isNaN(gpsData.GPS_OUTPUT.latitude) == false && isNaN(gpsData.GPS_OUTPUT.longitude) == false)
             {
+                console.log(gpsData);
                 mqttPub.publish('gps/ucsk', JSON.stringify(gpsData));
             }
         }
