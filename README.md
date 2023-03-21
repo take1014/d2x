@@ -54,9 +54,8 @@ sudo apt-get install libjsoncpp-dev
 sudo ln -s /usr/include/jsoncpp/json/ /usr/include/json
 # install mqtt
 # install libraries
-sudo apt-get install -y fakeroot devscripts dh-make lsb-release
-sudo apt-get install -y libssl-dev
-sudo apt-get install -y doxygen graphviz
+sudo apt-get install -y fakeroot devscripts dh-make lsb-release libssl-dev doxygen graphviz
+
 # install paho.mqtt.c
 cd ~
 git clone https://github.com/eclipse/paho.mqtt.c.git
