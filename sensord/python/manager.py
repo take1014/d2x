@@ -4,10 +4,14 @@ import sys
 import json
 import threading
 
+# GPS
 from gps import GPS
 from nmea_parser import NMEAParser
 
-def run_gps()->None:
+# Camera
+from cam import Camera
+
+def runGPS()->None:
     gps = GPS(serial_port="/dev/ttyUSB0")
     #gps = GPS(serial_port="/dev/ttyACM0")
     parser = NMEAParser()
@@ -126,10 +130,26 @@ def run_gps()->None:
             issync       = False
             continue
 
+def runCam()->None:
+    cam = Camera()
+    while True:
+        img = cam.read()
+        img = cam.resize(img, resize_h=480, resize_w=640)
+        cam.show(img)
+        cam.publish(img)
+        if cam.wait() == 27:
+            break
+
 def main() -> None:
     # TODO:add proccesing thread
-    gps_thread = threading.Thread(target=run_gps)
+
+    # Run GPS Thread
+    gps_thread = threading.Thread(target=runGPS)
     gps_thread.start()
+
+    # Run Camera Thread
+    cam_thread = threading.Thread(target=runCam)
+    cam_thread.start()
 
 if __name__ == "__main__":
     main()
