@@ -49,6 +49,6 @@ class Camera:
         assert img is not None
         self.mqtt_client.publish(payload=np.array2string(img))
 
-    def __del__(self):
+    def __del__(self)->None:
         self.cap.release()
         cv2.destroyAllWindows()
