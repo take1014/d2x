@@ -135,13 +135,14 @@ def runCam()->None:
     while True:
         img = cam.read()
         img = cam.resize(img, resize_h=480, resize_w=640)
+        # TODO: add inference
         cam.show(img)
         cam.publish(img)
-        if cam.wait() == 27:
+        if cam.wait(1) == 27:
             break
 
 def main() -> None:
-    # TODO:add proccesing thread
+    # TODO: add proccesing thread
 
     # Run GPS Thread
     gps_thread = threading.Thread(target=runGPS)

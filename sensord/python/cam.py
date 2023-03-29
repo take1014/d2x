@@ -26,13 +26,13 @@ class Camera:
         self.img = img if ret else None
         return self.img
 
-    def getOriginImg(self):
-        return self.img
-
     def write(self, img, filename=None)->None:
         assert img is not None
         assert filename is not None
         cv2.imwrite(filename, img)
+
+    def getOriginImg(self):
+        return self.img
 
     def resize(self, img, resize_h, resize_w):
         assert img is not None
