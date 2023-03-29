@@ -30,10 +30,12 @@ class Camera:
         return self.img
 
     def write(self, img, filename=None)->None:
+        assert img is not None
         assert filename is not None
         cv2.imwrite(filename, img)
 
     def resize(self, img, resize_h, resize_w):
+        assert img is not None
         return cv2.resize(img, (resize_w, resize_h))
 
     def show(self, img, window_name='camera')->None:
