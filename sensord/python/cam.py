@@ -52,3 +52,20 @@ class Camera:
     def __del__(self)->None:
         self.cap.release()
         cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    import threading
+
+    def runCam()->None:
+        cam = Camera()
+        while True:
+            img = cam.read()
+            img = cam.resize(img, resize_h=480, resize_w=640)
+            # TODO: add inference
+            cam.show(img)
+            cam.publish(img)
+            if cam.wait(1) == 27:
+                break
+
+    cam_thread = threading.Thread(target=runCam)
+    cam_thread.start()
