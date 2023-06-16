@@ -4,9 +4,10 @@ import sys
 import os
 import socket
 
-import numpy as np
 import cv2
+import json
 import spdlog
+import numpy as np
 
 from mqtt_client import MqttClient
 
@@ -19,11 +20,13 @@ class Camera:
         assert self.cap.isOpened()
         self.img = None
         # mqtt
-        self.mqtt_client = MqttClient(mqtt_pub_key='cam')
+        self.mqtt_client = MqttClient(mqtt_pub_key='d2x/cam')
+        self.frm_cnt = 0
 
     def read(self):
         ret, img = self.cap.read()
         self.img = img if ret else None
+        self.frm_cnt += 1
         return self.img
 
     def write(self, img, filename=None)->None:
@@ -47,7 +50,9 @@ class Camera:
 
     def publish(self, img)->None:
         assert img is not None
-        self.mqtt_client.publish(payload=np.array2string(img))
+        assert type(img) == np.ndarray
+        payload = json.dumps({"img":img.flatten().tolist(), "frm_cnt":self.frm_cnt, "img_shape": img.shape})
+        self.mqtt_client.publish(payload=payload)
 
     def __del__(self)->None:
         self.cap.release()

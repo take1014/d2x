@@ -43,7 +43,7 @@ class GPS:
 
     def publish(self, msg:str):
         assert type(msg)==str
-        self.mqtt_client.publish(topic="gps/"+self.hostname, payload=msg)
+        self.mqtt_client.publish(payload=msg)
 
     def recvMsg(self):
         # read until \n
