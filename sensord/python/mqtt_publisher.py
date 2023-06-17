@@ -3,7 +3,7 @@
 import socket
 import paho.mqtt.client as mqtt
 
-class MqttClient:
+class MqttPublisher(object):
     def __init__(self, hostname=socket.gethostname(), mqtt_pub_ip="127.0.0.1", mqtt_pub_port=1883, mqtt_pub_key='default'):
         # mqtt
         self.hostname      = hostname
@@ -29,6 +29,7 @@ class MqttClient:
         print("publish: {0}".format(mid))
 
     def __del__(self):
+        self.mqtt_client.loop_stop()
         self.mqtt_client.disconnect()
 
     def publish(self, payload=None)->None:

@@ -146,8 +146,8 @@ def main() -> None:
     # TODO: add proccesing thread
 
     # Run GPS Thread
-    # gps_thread = threading.Thread(target=runGPS)
-    # gps_thread.start()
+    gps_thread = threading.Thread(target=runGPS)
+    gps_thread.start()
 
     # Run Camera Thread
     cam_thread = threading.Thread(target=runCam)

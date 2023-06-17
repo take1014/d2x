@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-from mqtt_server import MqttServer
+from mqtt_subscriber import MqttSubscriber
 import numpy as np
 import json
 import cv2
 
-class Runner(MqttServer):
+class Runner(MqttSubscriber):
     def execute(self, client, userdata, msg) -> None:
         dict_info = json.loads(msg.payload)
         if self.frm_cnt == dict_info['frm_cnt']:
             return
         self.frm_cnt = dict_info['frm_cnt']
         img = np.array(dict_info['img']).reshape(dict_info['img_shape']).astype(np.uint8)
-        print(img.shape)
 
         cv2.imshow('runner window', img)
         if cv2.waitKey(1) == 27:
