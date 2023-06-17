@@ -10,6 +10,7 @@ from nmea_parser import NMEAParser
 
 # Camera
 from cam import Camera
+from runner import Runner
 
 def runGPS()->None:
     gps = GPS(serial_port="/dev/ttyUSB0")
@@ -145,12 +146,15 @@ def main() -> None:
     # TODO: add proccesing thread
 
     # Run GPS Thread
-    gps_thread = threading.Thread(target=runGPS)
-    gps_thread.start()
+    # gps_thread = threading.Thread(target=runGPS)
+    # gps_thread.start()
 
     # Run Camera Thread
     cam_thread = threading.Thread(target=runCam)
     cam_thread.start()
+
+    runner_thread = Runner()
+    runner_thread.event_loop()
 
 if __name__ == "__main__":
     main()
