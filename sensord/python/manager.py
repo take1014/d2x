@@ -153,6 +153,7 @@ def main() -> None:
     cam_thread = threading.Thread(target=runCam)
     cam_thread.start()
 
+    # DNN inference Thread
     runner_thread = Runner()
     runner_thread.event_loop()
 

@@ -5,6 +5,7 @@ import paho.mqtt.client as mqtt
 
 class MqttPublisher(object):
     def __init__(self, hostname=socket.gethostname(), mqtt_pub_ip="127.0.0.1", mqtt_pub_port=1883, mqtt_pub_key='default'):
+        assert mqtt_pub_key is not None, "you must be set mqtt_pub_key"
         # mqtt
         self.hostname      = hostname
         self.mqtt_pub_ip   = mqtt_pub_ip
