@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 import os
-
 import cv2
 import json
 import numpy as np
@@ -68,9 +67,11 @@ if __name__ == "__main__":
         cam = Camera()
         while True:
             img = cam.read()
-            img = cam.resize(img, resize_h=480, resize_w=640)
+            img = cam.resize(img, resize_h=480//3, resize_w=640//2)
+            # img = cam.resize(img, resize_h=480//3, resize_w=640//2)
             # TODO: add inference
-            cam.show(img)
+            _img = cam.getOriginImg()
+            cam.show(_img)
             cam.publish(img)
             if cam.wait(1) == 27:
                 break

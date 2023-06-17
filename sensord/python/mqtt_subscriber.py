@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from abc import ABCMeta, abstractmethod
 import socket
 import paho.mqtt.client as mqtt
 import threading
+from abc import ABCMeta, abstractmethod
 
 class MqttSubscriber(metaclass=ABCMeta):
     def __init__(self, hostname=socket.gethostname(), mqtt_sub_ip="127.0.0.1", mqtt_sub_port=1883, mqtt_sub_key=None):

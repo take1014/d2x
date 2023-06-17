@@ -3,7 +3,6 @@
 import os
 import serial
 from serial.tools import list_ports
-
 import spdlog as spd
 
 from mqtt_publisher import MqttPublisher
